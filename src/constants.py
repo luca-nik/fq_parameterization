@@ -1,4 +1,4 @@
-def connections():
+def number_connections():
     """A function which returns a dictionary."""
     """The values indicate the threshold for the connectrivity"""
     connections = {
@@ -8,4 +8,4 @@ def connections():
     "O" :   2        ,
     }
 
-    return weights
+    return connections

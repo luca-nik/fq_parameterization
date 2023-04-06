@@ -14,6 +14,9 @@ class molecule:
         self.atoms = len(self.atomtypes)
         self.coords = np.asarray(coordinates.copy())
         self.molecules = [0 for i in range(self.atoms)]
+        self.number_connections = [] 
+        self.connected_to = [] 
+        self.surface_atoms = [] 
 
     def write_xyz(self, name = 'nome', directory = '', comment = ''):
         #
@@ -46,10 +49,70 @@ class molecule:
         self.coords = np.asarray(coords)
         self.molecules = [0 for i in range(self.atoms)]
     #
-    def get_bond_axes(self):
+    def get_connectivity(self, print_info = False):
         #
-        """Procedure to get the axes along which you have the bonds"""
+        """Procedure to get the connectivity information of each atom of the molecule"""
+        #
+        # sanity check
+        #
+        if (self.atoms == 0):
+            print('ERROR: you need to initalize the molecule before computing the connectivity of its atoms')
+            sys.exit()
+        #
+        threshold = 1.5 #in Angstrom
+        #
+        connection_information = []
+        #
+        if print_info:
+            print('Printing the connectivity information:')
+        #
+        # Get the connetivity information of each atom according to the threshold distance
         #
         for i,at in enumerate(self.atomtypes):
-            pass
-            #constants.
+            connected_to = []
+            connections = 0
+            for j,at2 in enumerate(self.atomtypes):
+                if (i != j):
+                    dist = np.linalg.norm(self.coords[i] - self.coords[j])
+                    if (dist <= threshold):
+                       connected_to.append(j)
+                       connections += 1
+            #
+            self.number_connections.append(connections)
+            self.connected_to.append(connected_to)
+            #
+            # Print information abut the connectivity if required
+            #
+            if print_info:
+                info_string = ''
+                #
+                for index, connector in enumerate(self.connected_to[i]):
+                    info_string += str(self.atomtypes[connector]) + ' ' + str(connector)
+                    if index < len(self.connected_to[i])-1:
+                        info_string += ', '
+                #
+                print(at + ' ' + str(i).ljust(len(str(self.atoms))) +  ' - connected to ' + str(self.number_connections[i]).ljust(2) + ' atoms : ' + info_string)
+    #
+    def get_interface_atoms(self,print_info = False):
+        #
+        """Procedure to get the atoms which are at the interface with the solvent""" ## DA SPIEGARE MEGLIO STA COSA
+        #
+        # Sanity check
+        #
+        if (len(self.number_connections) == 0):
+            print('ERROR: you need to compute the connectivities before identifying interface atoms')
+            sys.exit()
+        #
+        if print_info:
+            print('Printing the atoms which are at the interface with the solvent:')
+        #
+        number_connections_expected =  constants.number_connections()
+        #
+        for i, at in enumerate(self.atomtypes):
+            if self.number_connections[i] <= number_connections_expected[at]:
+                self.surface_atoms.append(i)
+            #
+            if print_info:
+               print(at + ' ' + str(i).ljust(len(str(self.atoms)))) 
+    #
+
