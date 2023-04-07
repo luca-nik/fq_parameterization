@@ -37,6 +37,8 @@ class dipoles:
         #
         """Procedure to write the .dip file needed to move the dipoles in the space"""
         #
+        # Sanity check
+        #
         if directory[-1] != '/':
             directory +='/'
         #
@@ -62,6 +64,9 @@ class dipoles:
         self.n_dipoles = int(lines[0].split(':')[1])
         positions = []
         directions = []
+        #
+        # Read the information and store them
+        #
         for line in lines[2:]: 
             if len(line.split()) != 0:
                 coordinates = line.split('|')[1]
@@ -72,15 +77,65 @@ class dipoles:
         self.positions  = np.asarray(positions)
         self.directions = np.asarray(directions)
     #
-#    def move_dipoles(self, which_dipoles = [], displacements = []):
-#        #
-#        """Procedure to move some dipoles of a certain displacement"""
-#        """which_dipoles is a list of integers identyfing the dipoles
-#           displacements is a list of floats which are expressed in Angstrom
-#           the displacement happen along the line and the direction identified by dipole.directions
-#        """
-#        #
+    def move_dipoles(self, which_dipoles = [], displacements = [], create_new_dipoles = True):
+        #
+        """Procedure to move some dipoles of a certain displacement
 
-                                          
-                                          
+           which_dipoles is a list of integers identyfing the dipoles
+           displacements is a list of floats which are expressed in Angstrom
+           the displacement happen along the line and the direction identified by dipole.directions
+
+           REMEMBER: the dipoles are generated already with a displacement of 1 Angstrom from
+                     the reference atoms. This will add to your displacement
+        """
+        #
+        # Sanity checks
+        #
+        if type(which_dipoles) != list:
+            which_dipoles = [which_dipoles]
+        #
+        if (len(which_dipoles) == 0):
+            which_dipoles = [i for i in range(0, self.n_dipoles)] #displace them all
+        #
+        elif(len(which_dipoles) != len(set(which_dipoles))):
+            print('ERROR: move_dipoles you have duplicates in which_dipoles' )
+            sys.exit()
+        #
+        if type(displacements) != list:
+            displacements = [displacements]
+        #
+        if (len(displacements) == 0):
+            print('WARNING: move_dipoles called without any displacement, dipoles object was not modified')
+            return
+        try:
+            checked_displ = [float(i) for i in displacements]
+        except ValueError:
+            print('ERROR: move_dipoles called with non-float displacements')
+            sys.exit()
+        #
+        if (len(displacements) == 1):
+            checked_displ = [float(displacements[0]) for i in range(0,len(which_dipoles))] #you move all dipoles of the same amount
+        else:
+            if(len(displacements) != len(which_dipoles)):
+               print('ERROR: move_dipoles displacements do not match the number of dipoles')
+               sys.exit()
+        #
+        # Move the dipoles
+        #
+        new_positions  = self.positions.copy()
+        #
+        for i in which_dipoles:
+            new_positions[i,:] += checked_displ[i]*self.directions[i,:]
+        #
+        if create_new_dipoles:
+            new_directions = self.directions.copy()
+            new_dipoles = dipoles(n_dipoles = self.n_dipoles,\
+                          positions = new_positions, directions = new_directions)
+            return new_dipoles
+        else:
+            self.positions = new_positions.copy()
+    #
+            
+            
+
                                           
