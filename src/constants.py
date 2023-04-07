@@ -6,6 +6,7 @@ def number_connections():
     "C" :   3        ,
     "N" :   3        ,
     "O" :   2        ,
+    "Cl":   4        ,
     }
 
     return connections

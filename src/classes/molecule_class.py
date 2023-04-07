@@ -49,17 +49,18 @@ class molecule:
         self.coords = np.asarray(coords)
         self.molecules = [0 for i in range(self.atoms)]
     #
-    def get_connectivity(self, print_info = False):
+    def get_connectivity(self, bond_threshold = 1.5, print_info = False):
         #
-        """Procedure to get the connectivity information of each atom of the molecule"""
+        """Procedure to get the connectivity information of each atom of the molecule
+           bond_threshold is required to define the length below which we define the atoms connected. 
+           It is expressed in Angstrom
+        """
         #
         # sanity check
         #
         if (self.atoms == 0):
             print('ERROR: you need to initalize the molecule before computing the connectivity of its atoms')
             sys.exit()
-        #
-        threshold = 1.5 #in Angstrom
         #
         connection_information = []
         #
@@ -74,7 +75,7 @@ class molecule:
             for j,at2 in enumerate(self.atomtypes):
                 if (i != j):
                     dist = np.linalg.norm(self.coords[i] - self.coords[j])
-                    if (dist <= threshold):
+                    if (dist <= bond_threshold):
                        connected_to.append(j)
                        connections += 1
             #
