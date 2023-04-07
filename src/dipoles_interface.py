@@ -1,4 +1,5 @@
 from classes import molecule_class
+from classes import dipoles_class
 import numpy as np
 import sys
 import os
@@ -10,8 +11,9 @@ def position_the_dipoles(molecule, print_info = False):
         -Its surface atoms
         -Other stuff"""
     #
+    n_dipoles = 0
     positions = []
-    atomtypes = []
+    versors   = []
     for surf_index in molecule.surface_atoms: 
         #
         # Sanity  check
@@ -31,7 +33,8 @@ def position_the_dipoles(molecule, print_info = False):
                      np.linalg.norm(molecule.coords[surf_index] - molecule.coords[connector_index])
             #
             positions.append(molecule.coords[surf_index] + versor)
-            atomtypes.append('Mg')
+            versors.append(versor)
+            n_dipoles += 1
             #
         elif (molecule.number_connections[surf_index] == 2):
             #
@@ -48,13 +51,15 @@ def position_the_dipoles(molecule, print_info = False):
                       np.linalg.norm(molecule.coords[surf_index] - molecule.coords[connector_indices[0]])
             #
             positions.append(molecule.coords[surf_index] + versor1)
-            atomtypes.append('Mg')
+            versors.append(versor1)
+            n_dipoles += 1
             #
             versor2 = np.asarray(molecule.coords[surf_index] - molecule.coords[connector_indices[1]])/\
                       np.linalg.norm(molecule.coords[surf_index] - molecule.coords[connector_indices[1]])
             #
             positions.append(molecule.coords[surf_index] + versor2)
-            atomtypes.append('Mg')
+            versors.append(versor2)
+            n_dipoles += 1
             #
             # Orthogonal dipoles
             #
@@ -62,9 +67,13 @@ def position_the_dipoles(molecule, print_info = False):
             versor_ort = versor_ort/np.linalg.norm(versor_ort)
             #
             positions.append(molecule.coords[surf_index] + versor_ort)
-            atomtypes.append('Mg')
+            versors.append(versor_ort)
+            n_dipoles += 1
+            #
             positions.append(molecule.coords[surf_index] - versor_ort)
-            atomtypes.append('Mg')
+            versors.append(-versor_ort)
+            n_dipoles += 1
+            #atomtypes.append('Mg')
             #
             # In plane dipoles (bisectors)
             #
@@ -72,9 +81,11 @@ def position_the_dipoles(molecule, print_info = False):
             versor3 = versor3/np.linalg.norm(versor3)
             #
             positions.append(molecule.coords[surf_index] + versor3)
-            atomtypes.append('Mg')
-            positions.append(molecule.coords[surf_index] - versor3)
-            atomtypes.append('Mg')
+            versors.append(versor3)
+            n_dipoles += 1
+            #
+            #positions.append(molecule.coords[surf_index] - versor3) #this is on the bisector but on the acute side
+            #atomtypes.append('Mg')
             # 
         elif (molecule.number_connections[surf_index] == 3):
             #
@@ -105,15 +116,20 @@ def position_the_dipoles(molecule, print_info = False):
             versor3 = versor3/np.linalg.norm(versor3)
             #
             positions.append(molecule.coords[surf_index] + versor3)
-            atomtypes.append('Mg')
+            versors.append(versor3)
+            n_dipoles += 1
             positions.append(molecule.coords[surf_index] - versor3)
-            atomtypes.append('Mg')
+            versors.append(-versor3)
+            n_dipoles += 1
             #
         else:
             print("ERROR: more than three connecting atoms. Don't know what to do in this case.")
             sys.exit()
 
-    dipoles = molecule_class.molecule(atomtypes,positions)
+    dipoles = dipoles_class.dipoles(n_dipoles = n_dipoles, positions = positions, directions = versors)
     return dipoles 
 
-            
+#    def make_dip_file(dipoles_xyz, name = '', directory = './'):
+#        #
+#        """Procedure to create a .dip file needed to position the dipoles at different distances"""
+#        #
