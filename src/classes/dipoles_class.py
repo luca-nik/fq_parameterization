@@ -124,8 +124,8 @@ class dipoles:
         #
         new_positions  = self.positions.copy()
         #
-        for i in which_dipoles:
-            new_positions[i,:] += checked_displ[i]*self.directions[i,:]
+        for i,dip in enumerate(which_dipoles):
+            new_positions[dip,:] += checked_displ[i]*self.directions[dip,:]
         #
         if create_new_dipoles:
             new_directions = self.directions.copy()

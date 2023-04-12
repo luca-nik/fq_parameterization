@@ -6,7 +6,7 @@ class molecule:
     #
     """Molecule class object"""
     #
-    def __init__(self, atomtypes=[],coordinates=[]):
+    def __init__(self, atomtypes=[],coordinates=[], charge = 0):
         #
         """Initialization of the molecule class object"""
         #
@@ -17,6 +17,7 @@ class molecule:
         self.number_connections = [] 
         self.connected_to = [] 
         self.surface_atoms = [] 
+        self.charge = charge
 
     def write_xyz(self, name = 'nome', directory = '', comment = ''):
         #
@@ -27,6 +28,8 @@ class molecule:
         with open(directory+name+'.xyz', 'w') as outfile:
             outfile.write(str(self.atoms) + '\n')
             outfile.write(str(comment))
+            if (self.charge != 0):
+                outfile.write('  CHARGE:' + str(charge))
             for i,sym in enumerate(self.atomtypes):
                 outfile.write('\n' + sym.rjust(2) + '  ' + \
                                '{:5.5f}'.format(self.coords[i][0]).rjust(10)+ '  ' + \
@@ -42,6 +45,16 @@ class molecule:
         self.atoms = int(lines[0].split()[0])
         coords = []
         attypes = []
+        #
+        # Get the charge
+        #
+        try:
+            self.charge = float(lines[1].split('CHARGE:')[-1])
+        except:
+            pass
+        #
+        # Get the coordinates
+        #
         for line in lines[2:]: 
             if len(line.split()) != 0:
                 coords.append([float(i) for i in line.split()[1:]])
