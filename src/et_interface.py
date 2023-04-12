@@ -57,12 +57,12 @@ def create_EE_inp(et_seed_file = '', molecule_file = '',dipoles_file = '', which
         for line in seed_lines:
             #
             if ('name:' in line):
-                et_file.write('name: ' + computation_name + '\n')
+                et_file.write('   name: ' + computation_name + '\n')
             #
-            if ('charge:' in line):
-                et_file.write('charge: ' + str(QMmolecule.charge) + '\n')
+            elif ('charge:' in line):
+                et_file.write('   charge: ' + str(QMmolecule.charge) + '\n')
             #
-            if ('geometry' in line and 'end geometry' not in line):
+            elif ('geometry' in line and 'end geometry' not in line):
                 et_file.write('geometry \n')
                 et_file.write('basis: aug-cc-pvdz \n')
                 for i, sym in enumerate(QMmolecule.atomtypes):
