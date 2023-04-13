@@ -14,6 +14,7 @@ def position_the_dipoles(molecule, print_info = False):
     n_dipoles = 0
     positions = []
     versors   = []
+    #
     for surf_index in molecule.surface_atoms: 
         #
         # Sanity  check
@@ -104,7 +105,6 @@ def position_the_dipoles(molecule, print_info = False):
             positions.append(molecule.coords[surf_index] - versor_ort)
             versors.append(-versor_ort)
             n_dipoles += 1
-            #atomtypes.append('Mg')
             #
             # In plane dipoles (bisectors)
             #
@@ -116,7 +116,6 @@ def position_the_dipoles(molecule, print_info = False):
             n_dipoles += 1
             #
             #positions.append(molecule.coords[surf_index] - versor3) #this is on the bisector but on the acute side
-            #atomtypes.append('Mg')
             # 
         elif (molecule.number_connections[surf_index] == 3):
             #
@@ -159,8 +158,3 @@ def position_the_dipoles(molecule, print_info = False):
 
     dipoles = dipoles_class.dipoles(n_dipoles = n_dipoles, positions = positions, directions = versors)
     return dipoles 
-
-#    def make_dip_file(dipoles_xyz, name = '', directory = './'):
-#        #
-#        """Procedure to create a .dip file needed to position the dipoles at different distances"""
-#        #
