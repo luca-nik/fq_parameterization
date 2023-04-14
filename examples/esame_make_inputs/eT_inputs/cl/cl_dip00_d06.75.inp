@@ -1,0 +1,33 @@
+system
+   name: cl with embedding dipole number 0 at 6.75 Ang. and sign +-
+   charge: -1.0
+   multiplicity: 1
+end system
+
+do
+  ground state
+end do
+
+memory
+   available: 100
+end memory
+
+solver scf
+   algorithm: scf-diis
+end solver scf
+
+molecular mechanics
+   forcefield: non-polarizable
+end molecular mechanics
+
+method
+   hf
+end method
+
+geometry 
+basis: aug-cc-pvdz
+Cl    12.27300    14.91800    29.80500
+--
+H  [IMol= 1]     8.37589    11.02088    25.90789  [q = +1.0] 
+H  [IMol= 1]     7.79854    10.44354    25.33053  [q = -1.0] 
+end geometry

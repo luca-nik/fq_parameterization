@@ -1,0 +1,53 @@
+system
+   name: choline with embedding dipole number 14 at 4.0 Ang. and sign +-
+   charge: 1.0
+   multiplicity: 1
+end system
+
+do
+  ground state
+end do
+
+memory
+   available: 100
+end memory
+
+solver scf
+   algorithm: scf-diis
+end solver scf
+
+molecular mechanics
+   forcefield: non-polarizable
+end molecular mechanics
+
+method
+   hf
+end method
+
+geometry 
+basis: aug-cc-pvdz
+ C    23.59000     6.34700     6.71600
+ H    24.58100     6.72600     6.91500
+ H    23.48100     6.34800     5.64100
+ N    22.57300     7.34800     7.30500
+ C    23.59200     4.93800     7.22400
+ H    22.56900     4.58400     7.14600
+ H    23.84600     5.03900     8.27400
+ O    24.52300     4.04700     6.52400
+ H    24.10200     3.35200     6.03500
+ C    22.59300     7.33500     8.79400
+ H    21.74900     7.95600     9.12400
+ H    22.38500     6.32500     9.17200
+ H    23.53700     7.76900     9.15400
+ C    22.68900     8.77600     6.87400
+ H    23.68200     9.14000     7.17300
+ H    22.64300     8.87900     5.78100
+ H    21.96800     9.32200     7.49900
+ C    21.14500     6.97600     7.00500
+ H    20.36300     7.61500     7.43600
+ H    20.97300     7.04800     5.92200
+ H    20.97500     5.94000     7.33100
+--
+H  [IMol= 1]    22.47556     9.25396     1.80212  [q = +1.0] 
+H  [IMol= 1]    22.43370     9.34770     0.80740  [q = -1.0] 
+end geometry

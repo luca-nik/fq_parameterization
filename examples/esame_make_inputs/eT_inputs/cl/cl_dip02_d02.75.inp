@@ -1,0 +1,33 @@
+system
+   name: cl with embedding dipole number 2 at 2.75 Ang. and sign +-
+   charge: -1.0
+   multiplicity: 1
+end system
+
+do
+  ground state
+end do
+
+memory
+   available: 100
+end memory
+
+solver scf
+   algorithm: scf-diis
+end solver scf
+
+molecular mechanics
+   forcefield: non-polarizable
+end molecular mechanics
+
+method
+   hf
+end method
+
+geometry 
+basis: aug-cc-pvdz
+Cl    12.27300    14.91800    29.80500
+--
+H  [IMol= 1]    13.86072    13.33028    31.39271  [q = +1.0] 
+H  [IMol= 1]    14.43806    12.75294    31.97007  [q = -1.0] 
+end geometry

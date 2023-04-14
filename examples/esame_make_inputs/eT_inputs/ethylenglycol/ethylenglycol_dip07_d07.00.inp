@@ -1,0 +1,42 @@
+system
+   name: ethylenglycol with embedding dipole number 7 at 7.0 Ang. and sign +-
+   charge: 0
+   multiplicity: 1
+end system
+
+do
+  ground state
+end do
+
+memory
+   available: 100
+end memory
+
+solver scf
+   algorithm: scf-diis
+end solver scf
+
+molecular mechanics
+   forcefield: non-polarizable
+end molecular mechanics
+
+method
+   hf
+end method
+
+geometry 
+basis: aug-cc-pvdz
+ C    24.98100    21.40000    26.06300
+ H    24.33800    20.73300    25.48900
+ H    25.76200    20.78600    26.51100
+ C    24.23500    22.13700    27.15600
+ H    24.85700    22.44500    27.99600
+ H    23.76500    23.07500    26.86000
+ O    23.14400    21.33700    27.71500
+ H    23.53700    20.60000    28.15800
+ O    25.60400    22.45800    25.22500
+ H    26.46000    22.60600    25.59900
+--
+H  [IMol= 1]    23.44885    25.05854    33.63596  [q = +1.0] 
+H  [IMol= 1]    23.49241    25.59019    34.48181  [q = -1.0] 
+end geometry
