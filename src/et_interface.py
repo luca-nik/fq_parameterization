@@ -4,7 +4,7 @@ import numpy as np
 import sys
 import os
 #
-def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', which_dipoles = [],\
+def create_EE_inp(et_seed_file = '', QMmolecule_file = '', EEdipoles_file = '', which_dipoles = [],\
                   et_output_file_name = '', target_directory =  './', computation_name = ''):
     #
     """Procedure to generate a .inp file (input for eT calculations
@@ -16,8 +16,8 @@ def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', whic
   
        The procedure is built in such a way that the user provides:
        1) et_seed_file.inp 
-       2) molecule_file.xyz (target QM molecule xyz file)
-       3) dipoles_file.dip  (static dipolar embedding.dip file)
+       2) QMmolecule_file.xyz (target QM molecule xyz file)
+       3) EEdipoles_file.dip  (static dipolar embedding.dip file)
        4) et_output_file_name.inp (saved in target_directory)
        5) target_directory aforementioned (skip if you already have the path in the name of the file)
        6) which_dipoles (a list of dipoles you will include in the QM/EE calculation, default is all)
@@ -35,7 +35,7 @@ def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', whic
     if type(which_dipoles) != list:
         which_dipoles = [which_dipoles]
     #
-    et_create_EE_inp_sanity_checks(et_seed_file, molecule_file, dipoles_file, \
+    et_create_EE_inp_sanity_checks(et_seed_file, QMmolecule_file, EEdipoles_file, \
                                    et_output_file_name, target_directory,     \
                                    computation_name, which_dipoles)
     #
@@ -48,10 +48,10 @@ def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', whic
         seed_lines = seed.readlines()
     #
     QMmolecule = molecule_class.molecule()
-    QMmolecule.initialize_from_xyz(molecule_file)
+    QMmolecule.initialize_from_xyz(QMmolecule_file)
     #
     EEdipoles = dipoles_class.dipoles()
-    EEdipoles.initialize_from_dip(dipoles_file)
+    EEdipoles.initialize_from_dip(EEdipoles_file)
     #
     # Sanity checks on the initialized dipoles
     #
@@ -139,7 +139,7 @@ def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', whic
 #
 #
 #
-def et_create_EE_inp_sanity_checks(et_seed_file, molecule_file, dipoles_file, \
+def et_create_EE_inp_sanity_checks(et_seed_file, QMmolecule_file, EEdipoles_file, \
                                    et_output_file_name, target_directory,     \
                                    computation_name, which_dipoles):
     #
@@ -151,12 +151,12 @@ def et_create_EE_inp_sanity_checks(et_seed_file, molecule_file, dipoles_file, \
         print('ERROR: create_EE_inp called with ununderstandable et_seed_file')
         sys.exit()
     #
-    if (type(molecule_file) != str):
-        print('ERROR: create_EE_inp called with ununderstandable molecule_file')
+    if (type(QMmolecule_file) != str):
+        print('ERROR: create_EE_inp called with ununderstandable QMmolecule_file')
         sys.exit()
     #
-    if (type(dipoles_file) != str):
-        print('ERROR: create_EE_inp called with ununderstandable dipoles_file')
+    if (type(EEdipoles_file) != str):
+        print('ERROR: create_EE_inp called with ununderstandable EEdipoles_file')
         sys.exit()
     #
     if (type(et_output_file_name) != str):
