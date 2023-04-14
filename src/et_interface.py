@@ -30,9 +30,17 @@ def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', whic
     #
     distance = 0.5 #distance of the EE dipoles charges from their CM 
     #
-    # TODO Sanity checks
+    # Sanity checks
     #
-    pass
+    if type(which_dipoles) != list:
+        which_dipoles = [which_dipoles]
+    #
+    et_create_EE_inp_sanity_checks(et_seed_file, molecule_file, dipoles_file, \
+                                   et_output_file_name, target_directory,     \
+                                   computation_name, which_dipoles)
+    #
+    if target_directory[-1] != '/':
+        target_directory +='/'
     #
     # Fetch the files
     #
@@ -44,6 +52,15 @@ def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', whic
     #
     EEdipoles = dipoles_class.dipoles()
     EEdipoles.initialize_from_dip(dipoles_file)
+    #
+    # Sanity checks on the initialized dipoles
+    #
+    if (len(which_dipoles) == 0): #displace them all
+        which_dipoles = [i for i in range(0, EEdipoles.n_dipoles)]
+    for i in which_dipoles:
+        if i > EEdipoles.n_dipoles:
+            print('ERROR: creat_EE_inp called with non-existing dipole number ' + str(i)) 
+            sys.exit()
     #
     # Initialize and work on the .inp file
     #
@@ -113,11 +130,59 @@ def create_EE_inp(et_seed_file = '', molecule_file = '', dipoles_file = '', whic
             elif('xxx' in line):
                 pass
             #
+            elif('basis:' in line): #already done
+                pass
+            #
             else:
                 et_file.write(line)
     #
-
-
-
-
-
+#
+#
+#
+def et_create_EE_inp_sanity_checks(et_seed_file, molecule_file, dipoles_file, \
+                                   et_output_file_name, target_directory,     \
+                                   computation_name, which_dipoles):
+    #
+    """Routine for the sanity checks"""
+    #
+    # Check the types of the files
+    #
+    if (type(et_seed_file) != str):
+        print('ERROR: create_EE_inp called with ununderstandable et_seed_file')
+        sys.exit()
+    #
+    if (type(molecule_file) != str):
+        print('ERROR: create_EE_inp called with ununderstandable molecule_file')
+        sys.exit()
+    #
+    if (type(dipoles_file) != str):
+        print('ERROR: create_EE_inp called with ununderstandable dipoles_file')
+        sys.exit()
+    #
+    if (type(et_output_file_name) != str):
+        print('ERROR: create_EE_inp called with ununderstandable output_file_name')
+        sys.exit()
+    #
+    if (type(target_directory) != str):
+        print('ERROR: create_EE_inp called with ununderstandable target_directory')
+        sys.exit()
+    #
+    if (type(computation_name) != str):
+        print('ERROR: create_EE_inp called with ununderstandable computation_name')
+        sys.exit()
+    #
+    if (et_output_file_name.split('.')[-1] != 'inp'):
+        print('ERROR: create_EE_inp called with output_file_name not ending with .inp')
+        sys.exit()
+    #
+    # Check the which_dipoles type
+    #
+    elif(len(which_dipoles) != len(set(which_dipoles))):
+        print('ERROR: create_EE_inp you have duplicates in which_dipoles' )
+        sys.exit()
+    #
+    for i in which_dipoles:
+        if type(i) != int:
+            print('ERROR: create_EE_inp called with non-integer which_dipoles list')
+            sys.exit()
+    #
