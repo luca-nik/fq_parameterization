@@ -73,7 +73,7 @@ class polarizable_embedding:
             if ii < len(self.Rmu) -1:
                 infostring += ' , '
         print('Rmu         : ' + infostring)
-        print('pqeq:       : ' + str(self.pqeq))
+        #print('pqeq:       : ' + str(self.pqeq))
         #
 
     #
@@ -88,13 +88,13 @@ class polarizable_embedding:
         #
         if (force_field != 'fq' and force_field != 'fqfmu'):
             if (force_field == 'fq_pqeq' and pqeq == True):
-                self.force_field = 'fq'
-                self.pqeq = 'True'
+                self.force_field = 'fq_pqeq'
+                self.pqeq = True
             elif(force_field == 'fq_pqeq' and pqeq == False):
                 print('ERROR: forcefield fq_pqeq and pqeq keyword set to False')
                 sys.exit()
             elif(force_field == 'fqfmu_pqeq' and pqeq == True):
-                self.force_field = 'fqfmu'
+                self.force_field = 'fqfmu_pqeq'
                 self.pqeq = True
             elif(force_field == 'fqfmu_pqeq' and pqeq == False):
                 print('ERROR: forcefield fqfmu_pqeq and pqeq keyword set to False')
@@ -159,7 +159,7 @@ class polarizable_embedding:
         #
         # Alpha
         #
-        if self.force_field == 'fqfmu':
+        if (self.force_field == 'fqfmu' or self.force_field == 'fqfmu_pqeq'):
             if (type(alpha) != list):
                 alpha = [alpha]
             for i in alpha:
@@ -181,7 +181,7 @@ class polarizable_embedding:
         #
         # Check that the length of the different lists are the same and initialize uninitialize variables
         #
-        if (not self.pqeq and self.force_field == 'fq'):
+        if (self.force_field == 'fq'):
             if(len(self.atomtypes) != len(self.chi)   or \
                len(self.atomtypes) != len(self.eta)):
                print('ERROR: fq uncorrectly initilized (different length of the lists)')
@@ -191,7 +191,7 @@ class polarizable_embedding:
                 self.Rq = ['None']
                 self.Rmu = ['None']
         #
-        elif (self.pqeq and self.force_field == 'fq'):
+        elif (self.force_field == 'fq_pqeq'):
             if(len(self.atomtypes) != len(self.chi)   or \
                len(self.atomtypes) != len(self.eta)   or \
                len(self.atomtypes) != len(self.Rq)):
@@ -201,16 +201,17 @@ class polarizable_embedding:
                 self.alpha = ['None']
                 self.Rmu = ['None']
         #
-        elif (not self.pqeq and self.force_field == 'fqfmu'):
+        elif (self.force_field == 'fqfmu'):
             if(len(self.atomtypes) != len(self.chi)   or \
                len(self.atomtypes) != len(self.eta)   or \
                len(self.atomtypes) != len(self.alpha)):
                print('ERROR: fqfmu uncorrectly initilized (different length of the lists)')
                sys.exit()
             else:
-                self.alpha = ['None']
+                self.Rq = ['None']
+                self.Rmu = ['None']
         #
-        elif (self.pqeq and self.force_field == 'fqfmu'):
+        elif (self.force_field == 'fqfmu_pqeq'):
             if(len(self.atomtypes) != len(self.chi)   or \
                len(self.atomtypes) != len(self.eta)   or \
                len(self.atomtypes) != len(self.alpha) or \

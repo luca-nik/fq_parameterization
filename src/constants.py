@@ -10,3 +10,6 @@ def number_connections():
     }
 
     return connections
+#
+def dipoles_distance():
+    return 0.5 # in Angstrom

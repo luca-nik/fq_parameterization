@@ -1,5 +1,6 @@
 from classes import molecule_class
 from classes import dipoles_class
+import constants
 import numpy as np
 import sys
 import os
@@ -7,7 +8,7 @@ import os
 def create_EE_inp(et_seed_file = '', QMmolecule_file = '', EEdipoles_file = '', which_dipoles = [],\
                   et_output_file_name = '', target_directory =  './', computation_name = ''):
     #
-    """Procedure to generate a .inp file (input for eT calculations
+    """Procedure to generate a .inp file (input for eT calculations)
        starting from a seed.inp file
        The seed.inp file, which is et_seed_file has everything set up except for:
        1) Name of the computation;
@@ -28,7 +29,7 @@ def create_EE_inp(et_seed_file = '', QMmolecule_file = '', EEdipoles_file = '', 
        WARNING: the .dip files contain information about the center of mass of the dipole
     """
     #
-    distance = 0.5 #distance of the EE dipoles charges from their CM 
+    distance = constants.dipoles_distance() #distance of the EE dipoles charges from their CM 
     #
     # Sanity checks
     #
