@@ -60,6 +60,10 @@ def create_input(molecule_file = '', EEdipoles_file = '', which_dipoles = [], po
     #
     with open(target_directory + nanofq_output_file_name, 'w') as nano_file:
         #
+        # Write the computation name
+        #
+        nano_file.write('!' + computation_name + '\n\n')
+        #
         # Write what section
         #
         nano_file.write('what\n')
