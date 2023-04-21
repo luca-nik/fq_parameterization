@@ -113,69 +113,57 @@ def create_input(molecule_file = '', EEdipoles_file = '', which_dipoles = [], po
         #
         nano_file.write('\n')
         #
-        # Write the inut geometry section
+        # Write the input geometry section
         #
-        #for line in seed_lines:
-        #    #
-        #    if ('name:' in line):
-        #        et_file.write('   name: ' + computation_name + '\n')
-        #    #
-        #    elif ('charge:' in line):
-        #        et_file.write('   charge: ' + str(QMmolecule.charge) + '\n')
-        #    #
-        #    elif ('geometry' in line and 'end geometry' not in line):
-        #        et_file.write('geometry \n')
-        #        et_file.write('basis: '+ basis.strip() + '\n')
-        #        for i, sym in enumerate(QMmolecule.atomtypes):
-        #            et_file.write(sym.rjust(2) + '  ' + \
-        #                          '{:5.5f}'.format(QMmolecule.coords[i][0]).rjust(10)+ '  ' + \
-        #                          '{:5.5f}'.format(QMmolecule.coords[i][1]).rjust(10)+ '  ' + \
-        #                          '{:5.5f}'.format(QMmolecule.coords[i][2]).rjust(10) + '\n')
-        #        #
-        #        et_file.write('--')
-        #        #
-        #        # EE embedding
-        #        #
-        #        for i,dip in enumerate(which_dipoles):
-        #            # 
-        #            plus_vector  =  distance*EEdipoles.directions[dip,:]
-        #            minus_vector = -distance*EEdipoles.directions[dip,:]
-        #            plus_vector_sign  = EEdipoles.signs[dip][1]
-        #            minus_vector_sign = EEdipoles.signs[dip][0]
-        #            #
-        #            # Charge in CM - distance
-        #            #
-        #            et_file.write('\n' + 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
-        #                           '{:5.5f}'.format(EEdipoles.positions[dip][0] + minus_vector[0]).rjust(10)+ '  ' + \
-        #                           '{:5.5f}'.format(EEdipoles.positions[dip][1] + minus_vector[1]).rjust(10)+ '  ' + \
-        #                           '{:5.5f}'.format(EEdipoles.positions[dip][2] + minus_vector[2]).rjust(10)+ '  ' + \
-        #                           '[q = ' + minus_vector_sign + '1.0] \n' )
-        #            #
-        #            # Charge in CM + distance
-        #            #
-        #            et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
-        #                           '{:5.5f}'.format(EEdipoles.positions[dip][0] + plus_vector[0]).rjust(10)+ '  ' + \
-        #                           '{:5.5f}'.format(EEdipoles.positions[dip][1] + plus_vector[1]).rjust(10)+ '  ' + \
-        #                           '{:5.5f}'.format(EEdipoles.positions[dip][2] + plus_vector[2]).rjust(10)+ '  ' + \
-        #                           '[q = ' + plus_vector_sign + '1.0] \n' )
-        #            #
-        #            # Charge in CM, to be printed only as a debugging option (you need to uncomment it)
-        #            #
-        #            #et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
-        #            #               '{:5.5f}'.format(EEdipoles.positions[dip][0]).rjust(10)+ '  ' + \
-        #            #               '{:5.5f}'.format(EEdipoles.positions[dip][1]).rjust(10)+ '  ' + \
-        #            #               '{:5.5f}'.format(EEdipoles.positions[dip][2]).rjust(10)+ '  ' + \
-        #            #               '[q = 0.0] \n' )
-        #    #
-        #    elif('xxx' in line):
-        #        pass
-        #    #
-        #    elif('basis:' in line): #already done
-        #        pass
-        #    #
-        #    else:
-        #        et_file.write(line)
-    #
+        nano_file.write('input geometry \n')
+        for i, sym in enumerate(molecule.atomtypes):
+            nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
+                          '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
+                          '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
+                          '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
+        #
+        nano_file.write('end input geometry\n')
+        #
+        nano_file.write('\n')
+        #
+        # Write the electostatic embedding geometry
+        #
+        nano_file.write('electrostatic embedding geometry\n')
+        #
+        for i,dip in enumerate(which_dipoles):
+            # 
+            plus_vector  =  distance*EEdipoles.directions[dip,:]
+            minus_vector = -distance*EEdipoles.directions[dip,:]
+            plus_vector_sign  = EEdipoles.signs[dip][1]
+            minus_vector_sign = EEdipoles.signs[dip][0]
+            #
+            # Charge in CM - distance
+            #
+            nano_file.write('XX' + \
+                            '{:5.5f}'.format(EEdipoles.positions[dip][0] + minus_vector[0]).rjust(10)+ '  ' + \
+                            '{:5.5f}'.format(EEdipoles.positions[dip][1] + minus_vector[1]).rjust(10)+ '  ' + \
+                            '{:5.5f}'.format(EEdipoles.positions[dip][2] + minus_vector[2]).rjust(10)+ '  ' + \
+                            minus_vector_sign + '1.0\n' )
+            #
+            # Charge in CM + distance
+            #
+            nano_file.write('XX' + \
+                            '{:5.5f}'.format(EEdipoles.positions[dip][0] + plus_vector[0]).rjust(10)+ '  ' + \
+                            '{:5.5f}'.format(EEdipoles.positions[dip][1] + plus_vector[1]).rjust(10)+ '  ' + \
+                            '{:5.5f}'.format(EEdipoles.positions[dip][2] + plus_vector[2]).rjust(10)+ '  ' + \
+                            plus_vector_sign + '1.0\n' )
+            #
+            # Charge in CM, to be printed only as a debugging option (you need to uncomment it)
+            #
+            #nano_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
+            #               '{:5.5f}'.format(EEdipoles.positions[dip][0]).rjust(10)+ '  ' + \
+            #               '{:5.5f}'.format(EEdipoles.positions[dip][1]).rjust(10)+ '  ' + \
+            #               '{:5.5f}'.format(EEdipoles.positions[dip][2]).rjust(10)+ '  ' + \
+            #               '[q = 0.0] \n' )
+            #
+        #
+        nano_file.write('end electrostatic embedding geometry\n')
+        #
 #
 #
 #
