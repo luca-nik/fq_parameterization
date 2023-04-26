@@ -214,3 +214,26 @@ def nanofq_create_mfq_sanity_checks(molecule_file, EEdipoles_file, \
             print('ERROR: create_mfq called with non-integer which_dipoles list')
             sys.exit()
     #
+#
+# Get_energy procedure
+#
+def get_energy(log_file = ''):
+    #
+    """Procedure to read a nanofq output .log file and get the interaction energy FQ(FMu)/EE"""
+    #
+    # Fetch and open file
+    #
+    if( not log_file.endswith('.log')):
+        print('ERROR: get_energy without a .log file provided')
+        sys.exit()
+    #
+    with open(log_file, 'r') as file_:
+        lines = file_.readlines()
+    #
+    for line in lines:
+        if ('Electrostatic Embedding Interaction =') in line:
+            energy = float(line.split('=')[1]) 
+            break
+    #
+    return energy
+        
