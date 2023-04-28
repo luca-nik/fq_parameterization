@@ -232,8 +232,30 @@ def get_energy(log_file = ''):
     #
     for line in lines:
         if ('Electrostatic Embedding Interaction =') in line:
-            energy = float(line.split('=')[1]) 
-            break
+            energy_line = line.split('=')[1]
+            energy = float(energy_line.split('a.u.')[0])
+            return energy 
+    print('ERROR: no energy found')
+    sys.exit()
     #
-    return energy
-        
+#
+#def get_energy(log_file = ''):
+#    #
+#    """Procedure to read a nanofq output .log file and get the energy FQ(FMu)"""
+#    #
+#    # Fetch and open file
+#    #
+#    if( not log_file.endswith('.log')):
+#        print('ERROR: get_energy without a .log file provided')
+#        sys.exit()
+#    #
+#    with open(log_file, 'r') as file_:
+#        lines = file_.readlines()
+#    #
+#    for line in lines:
+#        if ('Energy =') in line:
+#            energy = float(line.split('=')[1]) 
+#            break
+#    #
+#    return energy
+#        

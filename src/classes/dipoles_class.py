@@ -20,6 +20,7 @@ class dipoles:
         # Sanity checks and assignement on the signs option
         #
         self.check_and_assign_signs(signs)
+        self.name = ''
     #
     # Write xyz procedure
     #
@@ -92,6 +93,7 @@ class dipoles:
         self.positions  = np.asarray(positions)
         self.directions = np.asarray(directions)
         self.check_and_assign_signs(signs) 
+        self.name = file
     #
     def move_dipoles(self, which_dipoles = [], displacements = [], create_new_dipoles = True):
         #
