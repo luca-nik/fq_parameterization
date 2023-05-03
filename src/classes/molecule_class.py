@@ -129,4 +129,14 @@ class molecule:
             if print_info:
                print(at + ' ' + str(i).ljust(len(str(self.atoms)))) 
     #
+    def get_PE_atomtypes(self):
+        #
+        # Procedure to get the set of atomtypes for the polarizable emebedding 
+        #
+        atomtypes = []
+        for i in self.atomtypes:
+            if (i not in atomtypes):
+                atomtypes.append(i)
+        #
+        return atomtypes
 

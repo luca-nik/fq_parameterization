@@ -2,7 +2,6 @@ from classes import molecule_class
 from classes import dipoles_class
 from classes import polarizable_embedding_class
 from classes import nanofq_class
-import nanofq_interface
 import genetic_algorithm_tools
 import constants
 import numpy as np

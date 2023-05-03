@@ -2,7 +2,6 @@ from classes import molecule_class
 from classes import dipoles_class
 from classes import polarizable_embedding_class
 from classes import nanofq_class
-import nanofq_interface
 import genetic_algorithm
 import constants
 import numpy as np
@@ -29,6 +28,7 @@ def global_variables_setup(workdir = '', reference_energies = [], dipoles_files 
     nanofq = nanofq_seed
     initial_PE = polarizable_embedding_seed
     log_file = open(wdir + 'GA_logfile.txt', 'w')
+    
 #
 #
 def PE_run_and_fit(ga_instance,solution,solution_idx):
@@ -85,14 +85,16 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         #
         energy.append(new_nanofq.get_energy())
     #
+    # Evaluate fitness of the current individual
+    #
+    fitness = genetic_algorithm.fitness_function(energy,reference)
+    #
     # Print some information
     #
     log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + \
                    ' energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference))) + '\n')
-    #
-    # Evaluate fitness of the current individual
-    #
-    fitness = genetic_algorithm.fitness_function(energy,reference)
+    new_embedding.print_info(file_=log_file)
+    log_file.write('\n')
     #
     # Remove the directory
     #
@@ -117,13 +119,13 @@ def get_number_of_genes(initial_PE):
     # Get the number of genes dependign on the class of the PE
     #
     if (initial_PE.force_field == 'fq'):
-        genes = 2*len(initial_PE.atomtypes)
+        genes = 2*len(initial_PE.atomtypes) - 1
     elif (initial_PE.force_field == 'fq_pqeq'):
-        genes = 3*len(initial_PE.atomtypes)
+        genes = 3*len(initial_PE.atomtypes) - 1
     elif (initial_PE.force_field == 'fqfmu'):
-        genes = 3*len(initial_PE.atomtypes)
+        genes = 3*len(initial_PE.atomtypes) -1 
     elif (initial_PE.force_field == 'fqfmu_pqeq'):
-        genes = 5*len(initial_PE.atomtypes)
+        genes = 5*len(initial_PE.atomtypes) -1 
     #
     return genes
 #
@@ -131,25 +133,42 @@ def assign_new_parameters(GA_solution,polarizable_embedding):
     #
     # Assign the parameters to the variables of the polarizable embedding
     #
-    if (polarizable_embedding.force_field == 'fq'):
-        polarizable_embedding.chi = [i for i in GA_solution[0:2]]
-        polarizable_embedding.eta = [i for i in GA_solution[2:4]]
-    elif (polarizable_embedding.force_field == 'fq_pqeq'):
-        polarizable_embedding.chi = [i for i in GA_solution[0:2]]
-        polarizable_embedding.eta = [i for i in GA_solution[2:4]]
-        polarizable_embedding.Rq  = [i for i in GA_solution[4:6]]
+    number_atomtypes = len(polarizable_embedding.atomtypes)
+    #
+    polarizable_embedding.chi = []
+    #
+    # Set chi and eta. Zero is the chi of the hydrogen
+    #
+    for indx,chi in enumerate(GA_solution[0:number_atomtypes-1]):
+        if (polarizable_embedding.atomtypes[indx] == 'H'):
+            polarizable_embedding.chi.append(0.0)
+            polarizable_embedding.chi.append(chi)
+        else:
+            polarizable_embedding.chi.append(chi)
+    #
+    # Manage the case the hydrogen is the last atomtype
+    #
+    if (len(polarizable_embedding.chi) < len(polarizable_embedding.atomtypes)):
+        polarizable_embedding.chi.append(0.0)
+    #
+    polarizable_embedding.eta = [i for i in GA_solution[number_atomtypes-1:2*number_atomtypes-1]]
+    #
+    # Other polarizable emebdding models
+    #
+    if (polarizable_embedding.force_field == 'fq_pqeq'):
+        polarizable_embedding.Rq  = [i for i in GA_solution[2*number_atomtypes-1:3*number_atomtypes-1]]
+    #
     elif (polarizable_embedding.force_field == 'fqfmu'):
-        polarizable_embedding.chi    = [i for i in GA_solution[0:2]]
-        polarizable_embedding.eta    = [i for i in GA_solution[2:4]]
-        polarizable_embedding.alpha  = [i for i in GA_solution[4:6]]
+        polarizable_embedding.alpha  = [i for i in GA_solution[2*number_atomtypes-1:3*number_atomtypes-1]]
+    #
     elif (polarizable_embedding.force_field == 'fqfmu_pqeq'):
-        polarizable_embedding.chi    = [i for i in GA_solution[0:2]]
-        polarizable_embedding.eta    = [i for i in GA_solution[2:4]]
-        polarizable_embedding.alpha  = [i for i in GA_solution[4:6]]
-        polarizable_embedding.Rq     = [i for i in GA_solution[6:8]]
-        polarizable_embedding.Rm     = [i for i in GA_solution[8:10]]
+        polarizable_embedding.alpha  = [i for i in GA_solution[2*number_atomtypes-1:3*number_atomtypes-1]]
+        polarizable_embedding.Rq     = [i for i in GA_solution[3*number_atomtypes-1:4*number_atomtypes-1]]
+        polarizable_embedding.Rmu    = [i for i in GA_solution[4*number_atomtypes-1:5*number_atomtypes-1]]
     #
 def run_optimal_PE(optimal_embedding):
+    #
+    # Procedure to perform on the optimal PE
     #
     target_directory = wdir+ 'optimal'
     #
@@ -191,49 +210,9 @@ def run_optimal_PE(optimal_embedding):
     #
     # Print some information
     #
-    log_file.write('\n-----Optimal Polarizable Embedding-----\n')
-    log_file.write('force_field : ' + optimal_embedding.force_field + '\n')
-    infostring = ''
-    for ii,i in enumerate(optimal_embedding.atomtypes):
-        infostring += "'" + i + "'"
-        if ii < len(optimal_embedding.atomtypes) -1:
-            infostring += ' , '
-    log_file.write('atomtypes   : ' + infostring + '\n')
-    #
-    infostring = ''
-    for ii,i in enumerate(optimal_embedding.chi):
-        infostring += str(i)
-        if ii < len(optimal_embedding.chi) -1:
-            infostring += ' , '
-    log_file.write('chi         : ' + infostring + '\n')
-    #
-    infostring = ''
-    for ii,i in enumerate(optimal_embedding.eta):
-        infostring += str(i)
-        if ii < len(optimal_embedding.eta) -1:
-            infostring += ' , '
-    log_file.write('eta         : ' + infostring + '\n')
-    #
-    infostring = ''
-    for ii,i in enumerate(optimal_embedding.alpha):
-        infostring += str(i)
-        if ii < len(optimal_embedding.alpha) -1:
-            infostring += ' , '
-    log_file.write('alpha       : ' + infostring + '\n')
-    #
-    infostring = ''
-    for ii,i in enumerate(optimal_embedding.Rq):
-        infostring += str(i)
-        if ii < len(optimal_embedding.Rq) -1:
-            infostring += ' , '
-    log_file.write('Rq          : ' + infostring + '\n')
-    #
-    infostring = ''
-    for ii,i in enumerate(optimal_embedding.Rmu):
-        infostring += str(i)
-        if ii < len(optimal_embedding.Rmu) -1:
-            infostring += ' , '
-    log_file.write('Rmu         : ' + infostring + '\n')
+    log_file.write('\n***************************************\n')
+    log_file.write('-----Optimal Polarizable Embedding-----\n')
+    optimal_embedding.print_info(file_=log_file)
     log_file.write('Optimal solution energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference))) + '\n')
     #
     # Evaluate fitness of the current individual

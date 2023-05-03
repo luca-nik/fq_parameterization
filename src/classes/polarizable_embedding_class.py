@@ -7,7 +7,7 @@ class polarizable_embedding:
     """Dipoles class object"""
     #
     def __init__(self, force_field = 'fq', atomtypes = [], chi = [], eta = [], alpha = [], \
-                 Rq = [], Rmu = [], pqeq = True):
+                 Rq = [], Rmu = [], pqeq = False):
         #
         """Initialization of the polarizable embedding class object"""
         """force_field = fq,fqfmu
@@ -25,10 +25,13 @@ class polarizable_embedding:
         self.check_parameters(force_field, atomtypes, chi, eta, alpha, Rq, Rmu, pqeq)
         #
     #
-    def print_info(self):
+    def print_info(self, file_=''):
         #
-        # Print info of the forcefield
+        # Print info of the forcefield, in case you pass a file, write in there
         #
+        original_stdout = sys.stdout 
+        if (file_ != ''):
+            sys.stdout = file_
         print('---polarizable force field---')
         #
         print('force_field : ' + self.force_field)
@@ -73,6 +76,7 @@ class polarizable_embedding:
             if ii < len(self.Rmu) -1:
                 infostring += ' , '
         print('Rmu         : ' + infostring)
+        sys.stdout = original_stdout
         #print('pqeq:       : ' + str(self.pqeq))
         #
 
