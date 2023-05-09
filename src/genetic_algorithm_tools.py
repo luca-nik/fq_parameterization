@@ -15,19 +15,22 @@ import subprocess
 #
 
 
-def global_variables_setup(workdir = '', reference_energies = [], dipoles_files = [], nanofq_seed = '', polarizable_embedding_seed = ''):
+def global_variables_setup(workdir = '', reference_energies = [], dipoles_files = [], clusters_files = [], \
+                           nanofq_seed = '', polarizable_embedding_seed = ''):
     global wdir
     global reference 
     global dip_files
+    global clust_files
     global nanofq
     global initial_PE
     global log_file
     wdir = workdir
-    reference = reference_energies
-    dip_files = dipoles_files
+    reference = reference_energies.copy()
+    dip_files = dipoles_files.copy()
+    clust_files = cluster_files.copy()
     nanofq = nanofq_seed
     initial_PE = polarizable_embedding_seed
-    log_file = open(wdir + 'GA_logfile.txt', 'w')
+    log_file = open(wdir + 'GA_logfile.txt', 'a')
     
 #
 #
@@ -52,8 +55,9 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     os.mkdir(target_directory)
     #
     energy = []
+    polar  = []
     #
-    # Cycle over the dipoles files
+    # Cycle over the dipoles files to get the EE interaction energy
     #
     for dip_file in dip_files:
         #
@@ -71,19 +75,46 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         new_nanofq.which_dipoles = which_dipoles.copy()
         new_nanofq.polarizable_model = new_embedding
         #
-        # Setup the nanofq calculation
+        # Setup the nanofq EE calculation
         #
         calc_name = new_nanofq.guess_name_from_dip()
         new_nanofq.name = target_directory +  '/' + calc_name
         #
-        new_nanofq.create_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name, \
-                                which_dipoles = which_dipoles)
+        new_nanofq.create_ee_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name, \
+                                   which_dipoles = which_dipoles)
         #
         # Run it and get the energy
         #
         new_nanofq.run()
         #
         energy.append(new_nanofq.get_energy())
+
+    #
+    # Cycle over the clusters to get the polarizability
+    #
+    for clust_file in clust_files:
+        #
+        # Get the molecules from the selected cluster file ### the cluster object is a list of molecules, the xyz has on the second lin the way to identify the molecule
+        #
+        cluster = cluster_class.initialize_from_xyz(clust_file)
+        #
+        new_nanofq = nanofq_class.nanofq(molecule = nanofq.molecule, nanofq_path = nanofq.nanofq_path)
+        #
+        new_nanofq.polarizable_model = new_embedding
+        #
+        # Setup the nanofq polar
+        #
+        new_nanofq.name = target_directory +  '/polar'
+        #
+        new_nanofq.create_polar_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name)
+        #
+        # Run it and get the energy
+        #
+        new_nanofq.run()
+        #
+        # Get polar
+        #
+        polar = new_nanofq.get_polar(which = 'isotropic')
     #
     # Evaluate fitness of the current individual
     #
@@ -199,8 +230,8 @@ def run_optimal_PE(optimal_embedding):
         calc_name = new_nanofq.guess_name_from_dip()
         new_nanofq.name = target_directory +  '/' + calc_name
         #
-        new_nanofq.create_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name, \
-                                which_dipoles = which_dipoles)
+        new_nanofq.create_ee_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name, \
+                                      which_dipoles = which_dipoles)
         #
         # Run it and get the energy
         #

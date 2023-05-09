@@ -24,13 +24,21 @@ def run_genetic_algorithm(nanofq,reference):
     #
     genes = genetic_algorithm_tools.get_number_of_genes(genetic_algorithm_tools.initial_PE)
     #
-    ga_instance = pygad.GA(num_generations=1,
-                           num_parents_mating=2,
-                           fitness_func=fitness_function,
-                           sol_per_pop=6,
-                           num_genes = genes,
+    #original_stdout = sys.stdout
+    #warnings =  open('GA_logfile.txt', 'w')
+    #sys.stdout = warnings
+    ga_instance = pygad.GA(num_generations=50,              
+                           num_parents_mating=5,            
+                           fitness_func=fitness_function,   
+                           sol_per_pop=100,                 
+                           num_genes = genes,               
+                           mutation_num_genes = genes-2,     
+                           random_mutation_min_val = 0.01,  
+                           random_mutation_max_val = 0.5,   
                            gene_space = {'low': 0, 'high': 1}
                            )
+    #sys.stdout = original_stdout
+    #warnings.close()
     #
     # Select best individual and make the optimal polarizable embedding
     #

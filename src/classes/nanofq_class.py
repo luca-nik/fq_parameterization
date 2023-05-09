@@ -39,7 +39,7 @@ class nanofq:
         #
         pass
 #
-    def create_input(self,input_ = '', computation_comment = '', which_dipoles = []):
+    def create_ee_input(self,input_ = '', computation_comment = '', which_dipoles = []):
         #
         """Procedure to generate a .mfq input file (input for nanoFQ calculations)
            1) input_ the complete path + name of the .mfq file you want to create
@@ -62,7 +62,7 @@ class nanofq:
             which_dipoles = [i for i in range(0, self.dipoles.n_dipoles)]
         for i in which_dipoles:
             if i > self.dipoles.n_dipoles:
-                print('ERROR: create_input called with non-existing dipole number ' + str(i)) 
+                print('ERROR: create_ee_input called with non-existing dipole number ' + str(i)) 
                 sys.exit()
         #
         # Initialize the .mfq file and work on it
@@ -126,14 +126,23 @@ class nanofq:
             #
             nano_file.write('\n')
             #
-            # Write the input geometry section
+            # Write the input geometry section paying attention wether is a list of molecules or just one
             #
             nano_file.write('input geometry \n')
-            for i, sym in enumerate(self.molecule.atomtypes):
-                nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
-                              '{:5.5f}'.format(self.molecule.coords[i][0]).rjust(10)+ '  ' + \
-                              '{:5.5f}'.format(self.molecule.coords[i][1]).rjust(10)+ '  ' + \
-                              '{:5.5f}'.format(self.molecule.coords[i][2]).rjust(10) + '\n')
+            #
+            if (type(molecule) != list):
+                for i, sym in enumerate(self.molecule.atomtypes):
+                    nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
+                                  '{:5.5f}'.format(self.molecule.coords[i][0]).rjust(10)+ '  ' + \
+                                  '{:5.5f}'.format(self.molecule.coords[i][1]).rjust(10)+ '  ' + \
+                                  '{:5.5f}'.format(self.molecule.coords[i][2]).rjust(10) + '\n')
+            else:
+                for mol_indx, molecule in enumerate(self.molecule):
+                    for i, sym in enumerate(molecule.atomtypes):
+                        nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx).ljust(2) + '] '  + \
+                                      '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
+                                      '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
+                                      '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
             #
             nano_file.write('end input geometry\n')
             #
@@ -177,10 +186,113 @@ class nanofq:
             #
             nano_file.write('end electrostatic embedding geometry\n')
             #
+#
+    def create_polar_input(self,input_ = '', computation_comment = ''):
+        #
+        """Procedure to generate a .mfq input file for the computation of the polar(input for nanoFQ calculations)
+           1) input_ the complete path + name of the .mfq file you want to create
+           2) computation_name (an ID inserted in the .mfq file, useful for the user)
+        """
+        #
+        # Sanity checks
+        #
+        self.mfq_sanity_checks(input_,computation_comment)
+        #
+        # Initialize the .mfq file and work on it
+        #
+        with open(self.input, 'w') as nano_file:
+            #
+            # Write the computation comment
+            #
+            nano_file.write('!' + self.comment + '\n\n')
+            #
+            # Write what section
+            #
+            nano_file.write('what\n')
+            nano_file.write('   static response\n')
+            nano_file.write('end what\n')
+            #
+            nano_file.write('\n')
+            #
+            # Write force field section
+            #
+            nano_file.write('forcefield\n')
+            nano_file.write('   static: ' + self.polarizable_model.force_field + '\n')
+            nano_file.write('   kernel: gaussian\n') #TODO che kernel usare
+            nano_file.write('end forcefield\n')
+            #
+            nano_file.write('\n')
+            #
+            # Write atomtypes section
+            #
+            nano_file.write('atom types\n')
+            nano_file.write('   number: ' + str(len(self.polarizable_model.atomtypes)) + '\n')
+            #
+            for i,atomtype in enumerate(self.polarizable_model.atomtypes):
+                string  = '   ' + atomtype + ': ['
+                string += 'chi=' + str(self.polarizable_model.chi[i]) + ','
+                string += 'eta=' + str(self.polarizable_model.eta[i])
+                if (self.polarizable_model.force_field == 'fq'):
+                    string += ']\n'
+                else: 
+                    string += ','
+                    if (self.polarizable_model.force_field == 'fq_pqeq'):
+                        string += 'rq=' + str(self.polarizable_model.Rq[i]) + ']\n'
+                    elif(self.polarizable_model.force_field == 'fqfmu'):
+                        string += 'alpha=' + str(self.polarizable_model.alpha[i]) + ']\n'
+                    elif(self.polarizable_model.force_field == 'fqfmu_pqeq'):
+                        string += 'alpha=' + str(self.polarizable_model.alpha[i]) + ','
+                        string += 'rq=' + str(self.polarizable_model.Rq[i]) + ','
+                        string += 'rmu=' + str(self.polarizable_model.Rmu[i]) + ']\n'
+                #
+                nano_file.write(string)
+            #
+            nano_file.write('end atom types\n')
+            #
+            nano_file.write('\n')
+            #
+            # Write the field section
+            #
+            nano_file.write('field\n')
+            nano_file.write('   efield: static\n')
+            nano_file.write('   rhs: potential\n')
+            nano_file.write('   field intensity: 0.1\n')
+            nano_file.write('end field\n')
+            #
+            nano_file.write('\n')
+            #
+            # Write output section
+            #
+            nano_file.write('output\n')
+            nano_file.write('   verbose: 1\n')
+            nano_file.write('end output\n')
+            #
+            nano_file.write('\n')
+            #
+            # Write the input geometry section paying attention wether is a list of molecules or just one
+            #
+            nano_file.write('input geometry \n')
+            #
+            if (type(molecule) != list):
+                for i, sym in enumerate(self.molecule.atomtypes):
+                    nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
+                                  '{:5.5f}'.format(self.molecule.coords[i][0]).rjust(10)+ '  ' + \
+                                  '{:5.5f}'.format(self.molecule.coords[i][1]).rjust(10)+ '  ' + \
+                                  '{:5.5f}'.format(self.molecule.coords[i][2]).rjust(10) + '\n')
+            else:
+                for mol_indx, molecule in enumerate(self.molecule):
+                    for i, sym in enumerate(molecule.atomtypes):
+                        nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx).ljust(2) + '] '  + \
+                                      '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
+                                      '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
+                                      '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
+            #
+            nano_file.write('end input geometry\n')
+            #
     #
+    # Procedure for the input sanity checks
     #
-    #
-    def mfq_sanity_checks(self,input_,computation_comment, which_dipoles):
+    def mfq_sanity_checks(self,input_,computation_comment, which_dipoles=[]):
         #
         """Routine for the sanity checks"""
         #
@@ -204,10 +316,11 @@ class nanofq:
             print('ERROR: create_mfq you have duplicates in which_dipoles' )
             sys.exit()
         #
-        for i in which_dipoles:
-            if type(i) != int:
-                print('ERROR: create_mfq called with non-integer which_dipoles list')
-                sys.exit()
+        if which_dipoles != []:
+            for i in which_dipoles:
+                if type(i) != int:
+                    print('ERROR: create_mfq called with non-integer which_dipoles list')
+                    sys.exit()
         #
         self.input = input_
         self.which_dipoles = which_dipoles
@@ -235,7 +348,7 @@ class nanofq:
     #
     # Get_energy procedure
     #
-    def get_energy(self):
+    def get_energy(self, which = 'electrostatic'):
         #
         """Procedure to read a nanofq output .log file and get the interaction energy FQ(FMu)/EE"""
         #
@@ -248,12 +361,63 @@ class nanofq:
         with open(self.output, 'r') as file_:
             lines = file_.readlines()
         #
+        if (which.lower() == 'electrostatic'):
+            target_string = 'Electrostatic Embedding Interaction ='
+        elif (which.lower() == 'total'):
+            target_string = 'Energy ='
+        else:
+            print('ERROR: get_energy without proper energy requested')
+            print('       Allowed keywords: electrostatic, total ')
+            sys.exit()
+        #
         for line in lines:
-            if ('Electrostatic Embedding Interaction =') in line:
+            if (target_string) in line:
                 energy_line = line.split('=')[1]
                 energy = float(energy_line.split('a.u.')[0])
                 return energy 
         print('ERROR: no energy found')
+        sys.exit()
+    #
+    # Get_polar procedure
+    #
+    def get_polar(self, which = 'isotropic'):
+        #
+        """Procedure to read a nanofq output .log file and get the polarizability"""
+        #
+        # Fetch and open file
+        #
+        if( not self.output.endswith('.log')):
+            print('ERROR: get_polar without a .log file provided')
+            sys.exit()
+        #
+        with open(self.output, 'r') as file_:
+            lines = file_.readlines()
+        #
+        if (which.lower() == 'isotropic'):
+            target_string = 'Polar Iso  ='
+        elif (which.lower() == 'tensor'):
+            target_string = 'Polarizability Tensor'
+        else:
+            print('ERROR: get_polar without proper polarizability requested.')
+            print('       Allowed keywords: isotropic, tensor ')
+            sys.exit()
+        #
+        for indx,line in enumerate(lines):
+            if (target_string == 'Polar Iso  =' and target_string in line):
+                polar_line = line.split('=')[1]
+                polar = float(polar_line.split('a.u.')[0])
+                return polar 
+            elif(target_string == 'Polarizability Tensor' and target_string in line):
+                polar = []
+                x_values = [float(i) for i in lines[indx+3].split()[1:]]
+                y_values = [float(i) for i in lines[indx+4].split()[1:]]
+                z_values = [float(i) for i in lines[indx+5].split()[1:]]
+                polar.append(x_values)
+                polar.append(y_values)
+                polar.append(z_values)
+                return np.asarray(polar)
+                
+        print('ERROR: no polar found')
         sys.exit()
     #
     #
@@ -276,7 +440,13 @@ class nanofq:
         else:
             self.polarizable_model = polarizable_model
         #
-        if (not isinstance(molecule, molecule_class.molecule)):
+        if (type(molecule) == list):
+            for mol in molecule:
+                if (not isinstance(mol, molecule_class.molecule)):
+                    print('ERROR: nanofq_class initialization without proper molecule object specified') 
+                    sys.exit()
+        #
+        elif (not isinstance(molecule, molecule_class.molecule)):
             print('ERROR: nanofq_class initialization without proper molecule object specified') 
             sys.exit()
         else:
