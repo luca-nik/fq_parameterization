@@ -131,7 +131,7 @@ class nanofq:
             #
             nano_file.write('input geometry \n')
             #
-            if (not isinstance(molecule,cluster_class.cluster)):
+            if (not isinstance(self.molecule,cluster_class.cluster)):
                 for i, sym in enumerate(self.molecule.atomtypes):
                     nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
                                   '{:5.5f}'.format(self.molecule.coords[i][0]).rjust(10)+ '  ' + \
@@ -274,7 +274,7 @@ class nanofq:
             #
             nano_file.write('input geometry \n')
             #
-            if (not isinstance(molecule, cluster_class.cluster):
+            if (not isinstance(self.molecule, cluster_class.cluster)):
                 for i, sym in enumerate(self.molecule.atomtypes):
                     nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
                                   '{:5.5f}'.format(self.molecule.coords[i][0]).rjust(10)+ '  ' + \
@@ -441,8 +441,9 @@ class nanofq:
         else:
             self.polarizable_model = polarizable_model
         #
-        if (type(molecule) == list):
-            for mol in molecule:
+        if (isinstance(molecule, cluster_class.cluster)):
+            for mol in molecule.molecules:
+                print(mol)
                 if (not isinstance(mol, molecule_class.molecule)):
                     print('ERROR: nanofq_class initialization without proper molecule object specified') 
                     sys.exit()

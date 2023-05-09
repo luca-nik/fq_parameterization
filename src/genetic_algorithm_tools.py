@@ -28,7 +28,7 @@ def global_variables_setup(workdir = '', reference_energies = [], dipoles_files 
     wdir = workdir
     reference = reference_energies.copy()
     dip_files = dipoles_files.copy()
-    clust_files = cluster_files.copy()
+    clust_files = clusters_files.copy()
     nanofq = nanofq_seed
     initial_PE = polarizable_embedding_seed
     log_file = open(wdir + 'GA_logfile.txt', 'a')
@@ -90,9 +90,10 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         #
         energy.append(new_nanofq.get_energy())
     #
-    # Remove the directory
+    # Restore the directory
     #
     subprocess.run(['rm', '-rf', target_directory])
+    os.mkdir(target_directory)
     #
     # Cycle over the clusters to get the polarizability
     #
@@ -100,7 +101,8 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         #
         # Get the molecules from the selected cluster file ### the cluster object is a list of molecules, the xyz has on the second lin the way to identify the molecule
         #
-        cluster = cluster_class.initialize_from_clust(clust_file)
+        cluster = cluster_class.cluster()
+        cluster.initialize_from_clust(clust_file)
         #
         new_nanofq = nanofq_class.nanofq(molecule = cluster, nanofq_path = nanofq.nanofq_path)
         #
@@ -108,7 +110,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         #
         # Setup the nanofq polar
         #
-        new_nanofq.name = target_directory +  clust_file.split('.clust')[0]
+        new_nanofq.name = target_directory + '/' + clust_file.split('.clust')[0]
         #
         new_nanofq.create_polar_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name)
         #
