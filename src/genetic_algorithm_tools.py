@@ -1,5 +1,6 @@
 from classes import molecule_class
 from classes import dipoles_class
+from classes import cluster_class
 from classes import polarizable_embedding_class
 from classes import nanofq_class
 import genetic_algorithm
@@ -88,7 +89,10 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         new_nanofq.run()
         #
         energy.append(new_nanofq.get_energy())
-
+    #
+    # Remove the directory
+    #
+    subprocess.run(['rm', '-rf', target_directory])
     #
     # Cycle over the clusters to get the polarizability
     #
@@ -96,15 +100,15 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         #
         # Get the molecules from the selected cluster file ### the cluster object is a list of molecules, the xyz has on the second lin the way to identify the molecule
         #
-        cluster = cluster_class.initialize_from_xyz(clust_file)
+        cluster = cluster_class.initialize_from_clust(clust_file)
         #
-        new_nanofq = nanofq_class.nanofq(molecule = nanofq.molecule, nanofq_path = nanofq.nanofq_path)
+        new_nanofq = nanofq_class.nanofq(molecule = cluster, nanofq_path = nanofq.nanofq_path)
         #
         new_nanofq.polarizable_model = new_embedding
         #
         # Setup the nanofq polar
         #
-        new_nanofq.name = target_directory +  '/polar'
+        new_nanofq.name = target_directory +  clust_file.split('.clust')[0]
         #
         new_nanofq.create_polar_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name)
         #
@@ -114,7 +118,12 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         #
         # Get polar
         #
-        polar = new_nanofq.get_polar(which = 'isotropic')
+        polar.append(new_nanofq.get_polar(which = 'isotropic'))
+    #
+    # Remove the directory
+    #
+    sys.exit()
+    subprocess.run(['rm', '-rf', target_directory])
     #
     # Evaluate fitness of the current individual
     #
@@ -126,10 +135,6 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
                    ' energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference))) + '\n')
     new_embedding.print_info(file_=log_file)
     log_file.write('\n')
-    #
-    # Remove the directory
-    #
-    subprocess.run(['rm', '-rf', target_directory])
     #
     return fitness
 #

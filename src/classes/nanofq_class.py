@@ -2,6 +2,7 @@ import numpy as np
 import constants
 from classes import molecule_class
 from classes import dipoles_class
+from classes import cluster_class
 from classes import polarizable_embedding_class
 import sys
 import subprocess
@@ -130,7 +131,7 @@ class nanofq:
             #
             nano_file.write('input geometry \n')
             #
-            if (type(molecule) != list):
+            if (not isinstance(molecule,cluster_class.cluster)):
                 for i, sym in enumerate(self.molecule.atomtypes):
                     nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
                                   '{:5.5f}'.format(self.molecule.coords[i][0]).rjust(10)+ '  ' + \
@@ -273,7 +274,7 @@ class nanofq:
             #
             nano_file.write('input geometry \n')
             #
-            if (type(molecule) != list):
+            if (not isinstance(molecule, cluster_class.cluster):
                 for i, sym in enumerate(self.molecule.atomtypes):
                     nano_file.write(sym.rjust(2) + '  [IMol=1] ' + \
                                   '{:5.5f}'.format(self.molecule.coords[i][0]).rjust(10)+ '  ' + \
