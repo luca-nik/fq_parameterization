@@ -30,7 +30,7 @@ class cluster:
         self.mol_id = mol_id
 
 
-    def write_clust(self, name = 'nome', directory = ''):
+    def write_clust(self, name = 'nome', directory = './'):
         #
         """Procedure to write the cluster object into a formatted clust file"""
         #

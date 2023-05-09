@@ -19,7 +19,7 @@ class molecule:
         self.surface_atoms = [] 
         self.charge = charge
 
-    def write_xyz(self, name = 'nome', directory = '', comment = ''):
+    def write_xyz(self, name = 'nome', directory = './', comment = ''):
         #
         """Procedure to write the molecule object into a formatted xyz file"""
         #
