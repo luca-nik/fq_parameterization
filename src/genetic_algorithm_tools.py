@@ -16,7 +16,7 @@ import subprocess
 #
 
 
-def global_variables_setup(workdir = '', reference_energies = [], dipoles_files = [], clusters_files = [], \
+def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_files = [], clusters_files = [], \
                            nanofq_seed = '', polarizable_embedding_seed = ''):
     global wdir
     global reference 
@@ -26,12 +26,23 @@ def global_variables_setup(workdir = '', reference_energies = [], dipoles_files 
     global initial_PE
     global log_file
     wdir = workdir
-    reference = reference_energies.copy()
+    reference = reference_dictionary.copy()
     dip_files = dipoles_files.copy()
     clust_files = clusters_files.copy()
     nanofq = nanofq_seed
     initial_PE = polarizable_embedding_seed
     log_file = open(wdir + 'GA_logfile.txt', 'a')
+    #
+    # Feature normalization (E-mu)/sigma
+    #
+    ref_energies = np.asarray(reference['energies'])
+    ref_energies = (ref_energies - np.mean(ref_energies))/np.std(ref_energies)
+    ref_polar = np.asarray(reference['polar'])
+    ref_polar = (ref_polar - np.mean(ref_polar))/np.std(ref_polar)
+    reference['energies'] = ref_energies
+    reference['polar'] = ref_polar
+    print('NEw_ref')
+    print(reference)
     
 #
 #
@@ -104,13 +115,17 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         cluster = cluster_class.cluster()
         cluster.initialize_from_clust(clust_file)
         #
-        new_nanofq = nanofq_class.nanofq(molecule = cluster, nanofq_path = nanofq.nanofq_path)
+        new_nanofq = nanofq_class.nanofq()
+        new_nanofq.molecule = cluster
+        new_nanofq.nanofq_path = nanofq.nanofq_path
+        #new_nanofq = nanofq_class.nanofq(molecule = cluster, nanofq_path = nanofq.nanofq_path)
         #
         new_nanofq.polarizable_model = new_embedding
         #
         # Setup the nanofq polar
         #
-        new_nanofq.name = target_directory + '/' + clust_file.split('.clust')[0]
+        clust_name = clust_file.split('/')[-1]
+        new_nanofq.name = target_directory + '/' + clust_name.split('.clust')[0]
         #
         new_nanofq.create_polar_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name)
         #
@@ -124,17 +139,19 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Remove the directory
     #
-    sys.exit()
     subprocess.run(['rm', '-rf', target_directory])
     #
     # Evaluate fitness of the current individual
     #
-    fitness = genetic_algorithm.fitness_function(energy,reference)
+    computed_values = {'energies': energy,
+                       'polar'   : polar}
+    #
+    fitness = genetic_algorithm.fitness_function(computed_values,reference)
     #
     # Print some information
     #
     log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + \
-                   ' energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference))) + '\n')
+                   ' energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
     new_embedding.print_info(file_=log_file)
     log_file.write('\n')
     #
@@ -251,9 +268,12 @@ def run_optimal_PE(optimal_embedding):
     log_file.write('\n***************************************\n')
     log_file.write('-----Optimal Polarizable Embedding-----\n')
     optimal_embedding.print_info(file_=log_file)
-    log_file.write('Optimal solution energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference))) + '\n')
+    log_file.write('Optimal solution energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
     #
     # Evaluate fitness of the current individual
+    #
+    #
+    # NEED TO DO THE POLAR
     #
     fitness = genetic_algorithm.fitness_function(energy,reference)
     #

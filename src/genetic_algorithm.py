@@ -10,8 +10,19 @@ import os
 import pygad #for the GA
 import subprocess
 
-def fitness_function(energy,reference):
-    return (1.0/np.linalg.norm(np.array(energy)-np.array(reference)))
+def fitness_function(computed_values,reference):
+    #
+    # Feature normalization (E-mu)/sigma
+    #
+    comp_energies = np.asarray(computed_values['energies'])
+    comp_energies = (comp_energies - np.mean(comp_energies))/np.std(comp_energies)
+    comp_polar = np.asarray(computed_values['polar'])
+    comp_polar = (comp_polar - np.mean(comp_polar))/np.std(comp_polar)
+    #
+    loss = np.sqrt(np.linalg.norm(comp_energies-reference['energies'])**2 + \
+                   np.linalg.norm(comp_polar-reference['polar'])**2)
+    #
+    return (1.0/loss)
 #
 #
 def run_genetic_algorithm(nanofq,reference):
@@ -35,7 +46,7 @@ def run_genetic_algorithm(nanofq,reference):
                            mutation_num_genes = genes-2,     
                            random_mutation_min_val = 0.01,  
                            random_mutation_max_val = 0.5,   
-                           gene_space = {'low': 0, 'high': 1}
+                           gene_space = {'low': 0.1, 'high': 1}
                            )
     #sys.stdout = original_stdout
     #warnings.close()

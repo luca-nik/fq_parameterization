@@ -86,7 +86,11 @@ class nanofq:
             #
             nano_file.write('forcefield\n')
             nano_file.write('   static: ' + self.polarizable_model.force_field + '\n')
-            nano_file.write('   kernel: gaussian\n') #TODO che kernel usare
+            if (self.polarizable_model.force_field == 'fq' or self.polarizable_model.force_field == 'fq_pqeq'):
+                nano_file.write('   kernel: ohno\n') 
+            else:
+                nano_file.write('   kernel: gaussian\n') 
+
             nano_file.write('end forcefield\n')
             #
             nano_file.write('\n')
@@ -138,9 +142,9 @@ class nanofq:
                                   '{:5.5f}'.format(self.molecule.coords[i][1]).rjust(10)+ '  ' + \
                                   '{:5.5f}'.format(self.molecule.coords[i][2]).rjust(10) + '\n')
             else:
-                for mol_indx, molecule in enumerate(self.molecule):
+                for mol_indx, molecule in enumerate(self.molecule.molecules):
                     for i, sym in enumerate(molecule.atomtypes):
-                        nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx).ljust(2) + '] '  + \
+                        nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx + 1).ljust(2) + '] '  + \
                                       '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
                                       '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
                                       '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
@@ -219,7 +223,10 @@ class nanofq:
             #
             nano_file.write('forcefield\n')
             nano_file.write('   static: ' + self.polarizable_model.force_field + '\n')
-            nano_file.write('   kernel: gaussian\n') #TODO che kernel usare
+            if (self.polarizable_model.force_field == 'fq' or self.polarizable_model.force_field == 'fq_pqeq'):
+                nano_file.write('   kernel: ohno\n') 
+            else:
+                nano_file.write('   kernel: gaussian\n') 
             nano_file.write('end forcefield\n')
             #
             nano_file.write('\n')
@@ -281,9 +288,9 @@ class nanofq:
                                   '{:5.5f}'.format(self.molecule.coords[i][1]).rjust(10)+ '  ' + \
                                   '{:5.5f}'.format(self.molecule.coords[i][2]).rjust(10) + '\n')
             else:
-                for mol_indx, molecule in enumerate(self.molecule):
+                for mol_indx, molecule in enumerate(self.molecule.molecules):
                     for i, sym in enumerate(molecule.atomtypes):
-                        nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx).ljust(2) + '] '  + \
+                        nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx + 1).ljust(2) + '] '  + \
                                       '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
                                       '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
                                       '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
@@ -443,12 +450,11 @@ class nanofq:
         #
         if (isinstance(molecule, cluster_class.cluster)):
             for mol in molecule.molecules:
-                print(mol)
                 if (not isinstance(mol, molecule_class.molecule)):
                     print('ERROR: nanofq_class initialization without proper molecule object specified') 
                     sys.exit()
         #
-        elif (not isinstance(molecule, molecule_class.molecule)):
+        elif (not isinstance(molecule, molecule_class.molecule) and not isinstance(molecule,cluster_class.cluster)):
             print('ERROR: nanofq_class initialization without proper molecule object specified') 
             sys.exit()
         else:
