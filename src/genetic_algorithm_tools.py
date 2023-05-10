@@ -41,8 +41,6 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
     ref_polar = (ref_polar - np.mean(ref_polar))/np.std(ref_polar)
     reference['energies'] = ref_energies
     reference['polar'] = ref_polar
-    print('NEw_ref')
-    print(reference)
     
 #
 #
@@ -225,11 +223,13 @@ def run_optimal_PE(optimal_embedding):
     #
     # Procedure to perform on the optimal PE
     #
-    target_directory = wdir+ 'optimal'
+    os.mkdir(wdir + 'optimal')
+    target_directory = wdir+ 'optimal/energies'
     #
     os.mkdir(target_directory)
     #
     energy = []
+    polar = []
     #
     # Cycle over the dipoles files
     #
@@ -263,19 +263,62 @@ def run_optimal_PE(optimal_embedding):
         #
         energy.append(new_nanofq.get_energy())
     #
+    # Restore the directory
+    #
+    target_directory = wdir+ 'optimal/polar'
+    #
+    os.mkdir(target_directory)
+    #
+    # Cycle over the clusters to get the polarizability
+    #
+    for clust_file in clust_files:
+        #
+        # Get the molecules from the selected cluster file ### the cluster object is a list of molecules, the xyz has on the second lin the way to identify the molecule
+        #
+        cluster = cluster_class.cluster()
+        cluster.initialize_from_clust(clust_file)
+        #
+        new_nanofq = nanofq_class.nanofq()
+        new_nanofq.molecule = cluster
+        new_nanofq.nanofq_path = nanofq.nanofq_path
+        #
+        new_nanofq.polarizable_model = optimal_embedding
+        #
+        # Setup the nanofq polar
+        #
+        clust_name = clust_file.split('/')[-1]
+        new_nanofq.name = target_directory + '/' + clust_name.split('.clust')[0]
+        #
+        new_nanofq.create_polar_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name)
+        #
+        # Run it and get the energy
+        #
+        new_nanofq.run()
+        #
+        # Get polar
+        #
+        polar.append(new_nanofq.get_polar(which = 'isotropic'))
+    #
+    # Evaluate fitness of the current individual
+    #
+    computed_values = {'energies': energy,
+                       'polar'   : polar}
+    #
+    #
     # Print some information
     #
     log_file.write('\n***************************************\n')
     log_file.write('-----Optimal Polarizable Embedding-----\n')
     optimal_embedding.print_info(file_=log_file)
     log_file.write('Optimal solution energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
+    log_file.write('Optimal polar diff          : ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
     #
     # Evaluate fitness of the current individual
     #
     #
     # NEED TO DO THE POLAR
     #
-    fitness = genetic_algorithm.fitness_function(energy,reference)
+    fitness = genetic_algorithm.fitness_function(computed_values,reference)
     #
     return fitness
 
