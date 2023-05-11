@@ -167,6 +167,8 @@ def get_which_dipoles_from_dip(dipfile):
     name = name.split('_')[0]
     return [int(name)]
 #
+#
+#
 def get_number_of_genes(initial_PE):
     #
     # Get the number of genes dependign on the class of the PE
@@ -181,6 +183,8 @@ def get_number_of_genes(initial_PE):
         genes = 5*len(initial_PE.atomtypes) -1 
     #
     return genes
+#
+#
 #
 def assign_new_parameters(GA_solution,polarizable_embedding):
     #
@@ -313,10 +317,7 @@ def run_optimal_PE(optimal_embedding):
     log_file.write('Optimal solution energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
     log_file.write('Optimal polar diff          : ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
     #
-    # Evaluate fitness of the current individual
-    #
-    #
-    # NEED TO DO THE POLAR
+    # Evaluate fitness of the optimal individual
     #
     fitness = genetic_algorithm.fitness_function(computed_values,reference)
     #

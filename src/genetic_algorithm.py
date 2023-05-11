@@ -38,10 +38,10 @@ def run_genetic_algorithm(nanofq,reference):
     #original_stdout = sys.stdout
     #warnings =  open('GA_logfile.txt', 'w')
     #sys.stdout = warnings
-    ga_instance = pygad.GA(num_generations=50,              
-                           num_parents_mating=5,            
+    ga_instance = pygad.GA(num_generations = 1,              
+                           num_parents_mating = 5,            
                            fitness_func=fitness_function,   
-                           sol_per_pop=100,                 
+                           sol_per_pop = 10,                 
                            num_genes = genes,               
                            mutation_num_genes = genes-2,     
                            random_mutation_min_val = 0.01,  
