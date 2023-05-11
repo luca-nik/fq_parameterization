@@ -39,8 +39,8 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
     ref_energies = (ref_energies - np.mean(ref_energies))/np.std(ref_energies)
     ref_polar = np.asarray(reference['polar'])
     ref_polar = (ref_polar - np.mean(ref_polar))/np.std(ref_polar)
-    reference['energies'] = ref_energies
-    reference['polar'] = ref_polar
+    reference['energies'] = ref_energies.copy()
+    reference['polar'] = ref_polar.copy()
     
 #
 #
@@ -56,6 +56,11 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     new_embedding.force_field = initial_PE.force_field
     new_embedding.atomtypes = initial_PE.atomtypes.copy()
     new_embedding.pqeq = initial_PE.pqeq
+    print('g' + str(ga_instance.generations_completed)+'_p' + str(solution_idx))
+    #print(ga_instance.population)
+    #print(solution)
+    #print('')
+    #return 1.0
     #
     # Assign the correct new parameters depending on the model you are parameterizing
     #
@@ -63,13 +68,14 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     # 
     target_directory = wdir+ 'g' + str(ga_instance.generations_completed)+'_p' + str(solution_idx)
     os.mkdir(target_directory)
+    os.mkdir(target_directory + '/energies')
     #
     energy = []
     polar  = []
     #
     # Cycle over the dipoles files to get the EE interaction energy
     #
-    for dip_file in dip_files:
+    for dip_file in dip_files[0:4]:
         #
         # Initialize dipoles and get the dipole you need to place
         #
@@ -88,7 +94,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         # Setup the nanofq EE calculation
         #
         calc_name = new_nanofq.guess_name_from_dip()
-        new_nanofq.name = target_directory +  '/' + calc_name
+        new_nanofq.name = target_directory +  '/energies/' + calc_name
         #
         new_nanofq.create_ee_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name, \
                                    which_dipoles = which_dipoles)
@@ -101,14 +107,15 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Restore the directory
     #
-    subprocess.run(['rm', '-rf', target_directory])
-    os.mkdir(target_directory)
+    if (ga_instance.generations_completed < ga_instance.num_generations):
+        subprocess.run(['rm', '-rf', target_directory + '/energies'])
+    os.mkdir(target_directory + '/polar')
     #
     # Cycle over the clusters to get the polarizability
     #
     for clust_file in clust_files:
         #
-        # Get the molecules from the selected cluster file ### the cluster object is a list of molecules, the xyz has on the second lin the way to identify the molecule
+        #
         #
         cluster = cluster_class.cluster()
         cluster.initialize_from_clust(clust_file)
@@ -123,7 +130,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         # Setup the nanofq polar
         #
         clust_name = clust_file.split('/')[-1]
-        new_nanofq.name = target_directory + '/' + clust_name.split('.clust')[0]
+        new_nanofq.name = target_directory + '/polar/' + clust_name.split('.clust')[0]
         #
         new_nanofq.create_polar_input(input_ = new_nanofq.name + '.mfq', computation_comment = new_nanofq.name)
         #
@@ -137,19 +144,22 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Remove the directory
     #
-    subprocess.run(['rm', '-rf', target_directory])
+    if (ga_instance.generations_completed < ga_instance.num_generations):
+        subprocess.run(['rm', '-rf', target_directory])
     #
     # Evaluate fitness of the current individual
     #
     computed_values = {'energies': energy,
                        'polar'   : polar}
     #
-    fitness = genetic_algorithm.fitness_function(computed_values,reference)
+    fitness = genetic_algorithm.fitness_evaluator(computed_values,reference)
     #
     # Print some information
     #
-    log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + \
+    log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + '\n' + \
                    ' energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
+    log_file.write(' polar  diff: ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
+    log_file.write(' fitness    : ' + str(fitness) + '\n')
     new_embedding.print_info(file_=log_file)
     log_file.write('\n')
     #
@@ -222,7 +232,9 @@ def assign_new_parameters(GA_solution,polarizable_embedding):
         polarizable_embedding.alpha  = [i for i in GA_solution[2*number_atomtypes-1:3*number_atomtypes-1]]
         polarizable_embedding.Rq     = [i for i in GA_solution[3*number_atomtypes-1:4*number_atomtypes-1]]
         polarizable_embedding.Rmu    = [i for i in GA_solution[4*number_atomtypes-1:5*number_atomtypes-1]]
-    #
+#
+#    
+#    
 def run_optimal_PE(optimal_embedding):
     #
     # Procedure to perform on the optimal PE
@@ -308,6 +320,9 @@ def run_optimal_PE(optimal_embedding):
     computed_values = {'energies': energy,
                        'polar'   : polar}
     #
+    # Evaluate fitness of the optimal individual
+    #
+    fitness = genetic_algorithm.fitness_evaluator(computed_values,reference)
     #
     # Print some information
     #
@@ -316,10 +331,7 @@ def run_optimal_PE(optimal_embedding):
     optimal_embedding.print_info(file_=log_file)
     log_file.write('Optimal solution energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
     log_file.write('Optimal polar diff          : ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
-    #
-    # Evaluate fitness of the optimal individual
-    #
-    fitness = genetic_algorithm.fitness_function(computed_values,reference)
+    log_file.write('Optimal fitness             : ' + str(fitness) + '\n')
     #
     return fitness
 
