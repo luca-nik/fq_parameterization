@@ -38,8 +38,10 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Setup GA
     #
-    sol_per_pop = 3
-    ga_instance = pygad.GA(num_generations = 3,                     \
+    sol_per_pop = 5
+    elistism = sol_per_pop//4 #keep 25 % of the good boys
+    #
+    ga_instance = pygad.GA(num_generations = 2,                     \
                            num_parents_mating = 2,                  \
                            fitness_func=fitness_function,           \
                            sol_per_pop = sol_per_pop,               \
@@ -50,8 +52,7 @@ def run_genetic_algorithm(nanofq,reference):
                            gene_space = {'low': 0.1, 'high': 0.8},  \
                            save_best_solutions=True,                \
                            allow_duplicate_genes = False,           \
-                           keep_elitism = 0,                        \
-                           keep_parents = 0,                        \
+                           keep_elitism =  elistism,                \
                            stop_criteria = ["saturate_10"]          \
                            )
     #
@@ -61,8 +62,12 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Take the best individual out of the last generation and make the optimal polarizable embedding
     #
-    [solution,best_fit,index] = ga_instance.best_solution(pop_fitness = ga_instance.last_generation_fitness)
+    [solution,best_fit,index] = ga_instance.best_solution()#(pop_fitness = ga_instance.last_generation_fitness)
     #
+    print(solution)
+    print(index)
+    print(best_fit)
+    sys.exit()
     optimal_computed_values = genetic_algorithm_tools.final_values[index]
     #print(optimal_computed_values)
     #
