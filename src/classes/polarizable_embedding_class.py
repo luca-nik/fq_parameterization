@@ -32,50 +32,55 @@ class polarizable_embedding:
         original_stdout = sys.stdout 
         if (file_ != ''):
             sys.stdout = file_
-        print('---polarizable force field---')
+        else:
+            print('---polarizable force field---')
         #
-        print('force_field : ' + self.force_field)
+        print(' force_field : ' + self.force_field)
         infostring = ''
         for ii,i in enumerate(self.atomtypes):
             infostring += "'" + i + "'"
             if ii < len(self.atomtypes) -1:
                 infostring += ' , '
-        print('atomtypes   : ' + infostring)
+        print(' atomtypes   : ' + infostring)
         #
         infostring = ''
         for ii,i in enumerate(self.chi):
             infostring += str(i)
             if ii < len(self.chi) -1:
                 infostring += ' , '
-        print('chi         : ' + infostring)
+        print(' chi         : ' + infostring)
         #
         infostring = ''
         for ii,i in enumerate(self.eta):
             infostring += str(i)
             if ii < len(self.eta) -1:
                 infostring += ' , '
-        print('eta         : ' + infostring)
+        print(' eta         : ' + infostring)
         #
-        infostring = ''
-        for ii,i in enumerate(self.alpha):
-            infostring += str(i)
-            if ii < len(self.alpha) -1:
-                infostring += ' , '
-        print('alpha       : ' + infostring)
+        if (self.force_field == 'fqfmu' or self.force_field == 'fqfmu_pqeq'):
+            infostring = ''
+            for ii,i in enumerate(self.alpha):
+                infostring += str(i)
+                if ii < len(self.alpha) -1:
+                    infostring += ' , '
+            print(' alpha       : ' + infostring)
         #
-        infostring = ''
-        for ii,i in enumerate(self.Rq):
-            infostring += str(i)
-            if ii < len(self.Rq) -1:
-                infostring += ' , '
-        print('Rq          : ' + infostring)
+        if (self.force_field == 'fq_pqeq' or self.force_field == 'fqfmu_pqeq'):
+            infostring = ''
+            for ii,i in enumerate(self.Rq):
+                infostring += str(i)
+                if ii < len(self.Rq) -1:
+                    infostring += ' , '
+            print(' Rq          : ' + infostring)
         #
-        infostring = ''
-        for ii,i in enumerate(self.Rmu):
-            infostring += str(i)
-            if ii < len(self.Rmu) -1:
-                infostring += ' , '
-        print('Rmu         : ' + infostring)
+        if (self.force_field == 'fqfmu_pqeq'):
+            infostring = ''
+            for ii,i in enumerate(self.Rmu):
+                infostring += str(i)
+                if ii < len(self.Rmu) -1:
+                    infostring += ' , '
+            print(' Rmu         : ' + infostring)
+        #
         sys.stdout = original_stdout
         #print('pqeq:       : ' + str(self.pqeq))
         #

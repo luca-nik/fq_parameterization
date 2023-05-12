@@ -20,18 +20,22 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
                            nanofq_seed = '', polarizable_embedding_seed = ''):
     global wdir
     global reference 
+    global normalized_reference 
     global dip_files
     global clust_files
     global nanofq
     global initial_PE
     global log_file
+    global final_values
+    #
     wdir = workdir
     reference = reference_dictionary.copy()
+    normalized_reference = reference_dictionary.copy()
     dip_files = dipoles_files.copy()
     clust_files = clusters_files.copy()
     nanofq = nanofq_seed
     initial_PE = polarizable_embedding_seed
-    log_file = open(wdir + 'GA_logfile.txt', 'a')
+    log_file = open(wdir + 'GA_logfile.txt', 'w')
     #
     # Feature normalization (E-mu)/sigma
     #
@@ -39,8 +43,12 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
     ref_energies = (ref_energies - np.mean(ref_energies))/np.std(ref_energies)
     ref_polar = np.asarray(reference['polar'])
     ref_polar = (ref_polar - np.mean(ref_polar))/np.std(ref_polar)
-    reference['energies'] = ref_energies.copy()
-    reference['polar'] = ref_polar.copy()
+    normalized_reference['energies'] = ref_energies.copy()
+    normalized_reference['polar'] = ref_polar.copy()
+    #
+    # Array to save final values
+    #
+    final_values = []
     
 #
 #
@@ -56,19 +64,23 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     new_embedding.force_field = initial_PE.force_field
     new_embedding.atomtypes = initial_PE.atomtypes.copy()
     new_embedding.pqeq = initial_PE.pqeq
-    print('g' + str(ga_instance.generations_completed)+'_p' + str(solution_idx))
-    #print(ga_instance.population)
-    #print(solution)
-    #print('')
-    #return 1.0
     #
     # Assign the correct new parameters depending on the model you are parameterizing
     #
     assign_new_parameters(solution,new_embedding)
     # 
     target_directory = wdir+ 'g' + str(ga_instance.generations_completed)+'_p' + str(solution_idx)
-    os.mkdir(target_directory)
+    #
+    try:
+        os.mkdir(target_directory)
+    except FileExistsError:
+        subprocess.run(['rm', '-rf', target_directory])
+        os.mkdir(target_directory)
+    #
     os.mkdir(target_directory + '/energies')
+    #print('g' + str(ga_instance.generations_completed)+'_p' + str(solution_idx))
+    #print(ga_instance.population)
+    #print(solution)
     #
     energy = []
     polar  = []
@@ -152,16 +164,29 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     computed_values = {'energies': energy,
                        'polar'   : polar}
     #
-    fitness = genetic_algorithm.fitness_evaluator(computed_values,reference)
+    # keep the information of the last generation
+    #
+    if (ga_instance.generations_completed == ga_instance.num_generations):
+        final_values.append(computed_values)
+    #
+    fitness = genetic_algorithm.fitness_evaluator(computed_values,normalized_reference)
     #
     # Print some information
     #
     log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + '\n' + \
-                   ' energy diff: ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
-    log_file.write(' polar  diff: ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
-    log_file.write(' fitness    : ' + str(fitness) + '\n')
+                   ' energy diff : ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
+    log_file.write(' polar  diff : ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
+    log_file.write(' fitness     : ' + str(fitness) + '\n')
     new_embedding.print_info(file_=log_file)
+    #
+    # Flush the values in the file
+    #
+    log_file.flush()
     log_file.write('\n')
+    #
+    #print(fitness)
+    #print('')
+    #print('')
     #
     return fitness
 #
@@ -322,7 +347,7 @@ def run_optimal_PE(optimal_embedding):
     #
     # Evaluate fitness of the optimal individual
     #
-    fitness = genetic_algorithm.fitness_evaluator(computed_values,reference)
+    fitness = genetic_algorithm.fitness_evaluator(computed_values,normalized_reference)
     #
     # Print some information
     #
