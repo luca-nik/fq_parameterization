@@ -6,7 +6,7 @@ import sys
 import os
 #
 def create_EE_inp(et_seed_file = '', QMmolecule_file = '', EEdipoles_file = '', which_dipoles = [],\
-                  et_output_file_name = '', target_directory =  './', computation_name = ''):
+                  et_output_file_name = '', target_directory =  './', computation_name = '', single_charge = [False, 0.0]):
     #
     """Procedure to generate a .inp file (input for eT calculations)
        starting from a seed.inp file
@@ -79,10 +79,10 @@ def create_EE_inp(et_seed_file = '', QMmolecule_file = '', EEdipoles_file = '', 
         for line in seed_lines:
             #
             if ('name:' in line):
-                et_file.write('   name: ' + computation_name + '\n')
+                et_file.write('   name: coso\n')
             #
             elif ('charge:' in line):
-                et_file.write('   charge: ' + str(QMmolecule.charge) + '\n')
+                et_file.write('   charge: ' + str(int(QMmolecule.charge)) + '\n')
             #
             elif ('geometry' in line and 'end geometry' not in line):
                 et_file.write('geometry \n')
@@ -97,36 +97,39 @@ def create_EE_inp(et_seed_file = '', QMmolecule_file = '', EEdipoles_file = '', 
                 #
                 # EE embedding
                 #
-                for i,dip in enumerate(which_dipoles):
-                    # 
-                    plus_vector  =  distance*EEdipoles.directions[dip,:]
-                    minus_vector = -distance*EEdipoles.directions[dip,:]
-                    plus_vector_sign  = EEdipoles.signs[dip][1]
-                    minus_vector_sign = EEdipoles.signs[dip][0]
-                    #
-                    # Charge in CM - distance
-                    #
-                    et_file.write('\n' + 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
-                                   '{:5.5f}'.format(EEdipoles.positions[dip][0] + minus_vector[0]).rjust(10)+ '  ' + \
-                                   '{:5.5f}'.format(EEdipoles.positions[dip][1] + minus_vector[1]).rjust(10)+ '  ' + \
-                                   '{:5.5f}'.format(EEdipoles.positions[dip][2] + minus_vector[2]).rjust(10)+ '  ' + \
-                                   '[q = ' + minus_vector_sign + '1.0] \n' )
-                    #
-                    # Charge in CM + distance
-                    #
-                    et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
-                                   '{:5.5f}'.format(EEdipoles.positions[dip][0] + plus_vector[0]).rjust(10)+ '  ' + \
-                                   '{:5.5f}'.format(EEdipoles.positions[dip][1] + plus_vector[1]).rjust(10)+ '  ' + \
-                                   '{:5.5f}'.format(EEdipoles.positions[dip][2] + plus_vector[2]).rjust(10)+ '  ' + \
-                                   '[q = ' + plus_vector_sign + '1.0] \n' )
-                    #
-                    # Charge in CM, to be printed only as a debugging option (you need to uncomment it)
-                    #
-                    #et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
-                    #               '{:5.5f}'.format(EEdipoles.positions[dip][0]).rjust(10)+ '  ' + \
-                    #               '{:5.5f}'.format(EEdipoles.positions[dip][1]).rjust(10)+ '  ' + \
-                    #               '{:5.5f}'.format(EEdipoles.positions[dip][2]).rjust(10)+ '  ' + \
-                    #               '[q = 0.0] \n' )
+                if single_charge[0]:
+                    for i,dip in enumerate(which_dipoles):
+                        #
+                        # Charge in CM
+                        #
+                        et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][0]).rjust(10)+ '  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][1]).rjust(10)+ '  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][2]).rjust(10)+ '  ' + \
+                                       '[q = ' + str(single_charge[1]) + '] \n' )
+                else:
+                    for i,dip in enumerate(which_dipoles):
+                        # 
+                        plus_vector  =  distance*EEdipoles.directions[dip,:]
+                        minus_vector = -distance*EEdipoles.directions[dip,:]
+                        plus_vector_sign  = EEdipoles.signs[dip][1]
+                        minus_vector_sign = EEdipoles.signs[dip][0]
+                        #
+                        # Charge in CM - distance
+                        #
+                        et_file.write('\n' + 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][0] + minus_vector[0]).rjust(10)+ '  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][1] + minus_vector[1]).rjust(10)+ '  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][2] + minus_vector[2]).rjust(10)+ '  ' + \
+                                       '[q = ' + minus_vector_sign + '1.0] \n' )
+                        #
+                        # Charge in CM + distance
+                        #
+                        et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][0] + plus_vector[0]).rjust(10)+ '  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][1] + plus_vector[1]).rjust(10)+ '  ' + \
+                                       '{:5.5f}'.format(EEdipoles.positions[dip][2] + plus_vector[2]).rjust(10)+ '  ' + \
+                                       '[q = ' + plus_vector_sign + '1.0] \n' )
             #
             elif('xxx' in line):
                 pass

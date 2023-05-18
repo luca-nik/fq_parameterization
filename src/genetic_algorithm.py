@@ -38,19 +38,19 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Setup GA
     #
-    sol_per_pop = 5
+    sol_per_pop = 25
     elistism = sol_per_pop//4 #keep 25 % of the good boys
     #
-    ga_instance = pygad.GA(num_generations = 2,                     \
+    ga_instance = pygad.GA(num_generations = 20,                    \
                            num_parents_mating = 2,                  \
                            fitness_func=fitness_function,           \
                            sol_per_pop = sol_per_pop,               \
                            num_genes = genes,                       \
-                           mutation_num_genes = genes-2,            \
+                           mutation_num_genes = genes,              \
                            random_mutation_min_val = 0.01,          \
                            random_mutation_max_val = 0.5,           \
                            gene_space = {'low': 0.1, 'high': 0.8},  \
-                           save_best_solutions=True,                \
+                           save_solutions=True,                     \
                            allow_duplicate_genes = False,           \
                            keep_elitism =  elistism,                \
                            stop_criteria = ["saturate_10"]          \
@@ -60,56 +60,141 @@ def run_genetic_algorithm(nanofq,reference):
     #
     ga_instance.run()
     #
-    # Take the best individual out of the last generation and make the optimal polarizable embedding
+    # Take the individuals of the last generation with their fitness
     #
-    [solution,best_fit,index] = ga_instance.best_solution()#(pop_fitness = ga_instance.last_generation_fitness)
+    last_generation_solutions = ga_instance.solutions[ga_instance.num_generations*sol_per_pop:]
+    print(last_generation_solutions)
+    print(len(last_generation_solutions))
     #
-    print(solution)
-    print(index)
-    print(best_fit)
-    sys.exit()
-    optimal_computed_values = genetic_algorithm_tools.final_values[index]
-    #print(optimal_computed_values)
+    best_solutions = select_best_solutions(ga_instance.keep_elitism,last_generation_solutions,\
+                                           ga_instance.last_generation_fitness)
     #
-    # Clean the directories
+    # Make a list of the optimal polarizable embeddings
+    #
+    genetic_algorithm_tools.log_file.write('\n***************************************\n')
+    genetic_algorithm_tools.log_file.write('\n')
+    genetic_algorithm_tools.log_file.write('-----Optimal Polarizable Embeddings----\n\n')
+    polarizable_embeddings = []
+    for i,genes in enumerate(best_solutions['genes']):
+        genetic_algorithm_tools.log_file.write(' member: ' + str(best_solutions["pop_index"][i]) + '\n')
+        pe = polarizable_embedding_class.polarizable_embedding()
+        pe.forcefield = genetic_algorithm_tools.initial_PE.force_field
+        pe.atomtypes  = genetic_algorithm_tools.initial_PE.atomtypes.copy()
+        pe.pqeq       = genetic_algorithm_tools.initial_PE.pqeq
+        genetic_algorithm_tools.assign_new_parameters(genes,pe)
+        polarizable_embeddings.append(pe)
+        pe.print_info(file_ = genetic_algorithm_tools.log_file)
+        genetic_algorithm_tools.log_file.write('\n')
+    #
+    # Manage the directories
     #
     wdir = genetic_algorithm_tools.wdir
-    optimal_directory = wdir+ 'g' + str(ga_instance.generations_completed)+'_p' + str(index)
-    if os.path.exists(wdir + 'optimal'):
-        subprocess.run(['rm', '-rf', wdir + 'optimal'])
-    subprocess.run(['mv', optimal_directory, wdir + 'optimal'])
+    for i in range(0,sol_per_pop+1):
+        try:
+            subprocess.run(['rm', '-rf', wdir + 'optimal_p' + str(i)])
+        except:
+            pass
+    #
+    for i,indx in enumerate(best_solutions['pop_index']):
+        #
+        if indx < ga_instance.keep_elitism:
+            #
+            # we have to remake the computation
+            #
+            genetic_algorithm_tools.run_single_PE(ga_instance,dir_ = wdir + 'optimal_p' + str(indx), embedding = polarizable_embeddings[i], pop_index = indx)
+        else:
+            pop_indx_dir = wdir+ 'g' + str(ga_instance.generations_completed)+'_p' + str(indx)
+            subprocess.run(['mv', pop_indx_dir, wdir + 'optimal_p' + str(indx)])
+    #
+    # Delete all the other folders
     #
     for i in range(0,sol_per_pop+1):
         try:
             subprocess.run(['rm', '-rf', wdir+ 'g' + str(ga_instance.generations_completed)+'_p'+str(i)])
         except:
             pass
-    #
-    # Intialize the optimal force field
-    #
-    optimal_embedding = polarizable_embedding_class.polarizable_embedding()
-    optimal_embedding.force_field = genetic_algorithm_tools.initial_PE.force_field
-    optimal_embedding.atomtypes = genetic_algorithm_tools.initial_PE.atomtypes.copy()
-    optimal_embedding.pqeq = genetic_algorithm_tools.initial_PE.pqeq
-    genetic_algorithm_tools.assign_new_parameters(solution,optimal_embedding)
-    #
-    # Print info
-    #
-    genetic_algorithm_tools.log_file.write('\n***************************************\n')
-    genetic_algorithm_tools.log_file.write('\n')
-    genetic_algorithm_tools.log_file.write('-----Optimal Polarizable Embedding-----\n')
-    genetic_algorithm_tools.log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(index) + '\n')
-    genetic_algorithm_tools.log_file.write(' energy diff : ' + \
-      str(np.linalg.norm(np.array(optimal_computed_values['energies'])-np.array(reference['energies']))) + '\n')
-    genetic_algorithm_tools.log_file.write(' polar  diff : ' + \
-      str(np.linalg.norm(np.array(optimal_computed_values['polar'])-np.array(reference['polar']))) + '\n')
-    genetic_algorithm_tools.log_file.write(' fitness     : ' + str(best_fit) + '\n')
-    optimal_embedding.print_info(file_=genetic_algorithm_tools.log_file)
-    #
-    #
-    # Close the GA log_file
-    #
+    sys.exit()
+    ##
+    ## Intialize the optimal force field
+    ##
+    #optimal_embedding             = polarizable_embedding_class.polarizable_embedding()
+    #optimal_embedding.force_field = genetic_algorithm_tools.initial_PE.force_field
+    #optimal_embedding.atomtypes   = genetic_algorithm_tools.initial_PE.atomtypes.copy()
+    #optimal_embedding.pqeq        = genetic_algorithm_tools.initial_PE.pqeq
+    #genetic_algorithm_tools.assign_new_parameters(solution,optimal_embedding)
+    ##
+    ## Print info
+    ##
+    #genetic_algorithm_tools.log_file.write('\n***************************************\n')
+    #genetic_algorithm_tools.log_file.write('\n')
+    #genetic_algorithm_tools.log_file.write('-----Optimal Polarizable Embedding-----\n')
+    #genetic_algorithm_tools.log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(index) + '\n')
+    #genetic_algorithm_tools.log_file.write(' energy diff : ' + \
+    #  str(np.linalg.norm(np.array(optimal_computed_values['energies'])-np.array(reference['energies']))) + '\n')
+    #genetic_algorithm_tools.log_file.write(' polar  diff : ' + \
+    #  str(np.linalg.norm(np.array(optimal_computed_values['polar'])-np.array(reference['polar']))) + '\n')
+    #genetic_algorithm_tools.log_file.write(' fitness     : ' + str(best_fit) + '\n')
+    #optimal_embedding.print_info(file_=genetic_algorithm_tools.log_file)
+    ##
+    ##
+    ## Close the GA log_file
+    ##
     genetic_algorithm_tools.log_file.close()
     #
-    return optimal_embedding
+    return best_solutions
+#
+def select_best_solutions(elitism,solutions,fitness):
+    #
+    # Select a number of best solutions depending on the number of elitism
+    #
+    print('fit')
+    print(fitness)
+    print(len(fitness))
+    fitness_indices = np.flip(np.argsort(fitness))
+    #
+    sol = []
+    fit = []
+    pop_indx = []
+    print('solutions')
+    print(solutions)
+    #
+    # If no elitism keep only the best solution
+    #
+    if (elitism == 0):
+        sol.append(solutions[0])
+        fit.append(fitness  [0])
+        pop_indx.append(0)
+    else:
+        for num, index in enumerate(fitness_indices):
+            if(num == elitism):
+                break
+            else:
+                sol.append(solutions[index])
+                fit.append(fitness[index])
+                pop_indx.append(index)
+    #
+    best_solutions = {'genes'      : sol,
+                      'fitness'    : fit,
+                      'pop_index'  : pop_indx}
+    #
+    return best_solutions
+#
+def best_solution_management(embeddings,generations):
+    #
+    # Here we get the generation and index of the optimal embeddings.
+    # In this way we keep only the desired folders and make the computation only for the parameters not obtained in the last genration
+    #
+    lines = genetic_algorithm_tools.log_file.read_lines()
+    #
+    #for embedding in embeddings:
+    #    for line in lines:
+            
+
+
+
+
+
+
+
+
 
