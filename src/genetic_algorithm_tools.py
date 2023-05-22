@@ -74,17 +74,17 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         os.mkdir(target_directory)
     #
     os.mkdir(target_directory + '/energies')
-    print('g' + str(ga_instance.generations_completed)+'_p' + str(solution_idx))
-    print(ga_instance.population)
-    print(solution)
-    print('')
+    #print('g' + str(ga_instance.generations_completed)+'_p' + str(solution_idx))
+    #print(ga_instance.population)
+    #print(solution)
+    #print('')
     #
     energy = []
     polar  = []
     #
     # Cycle over the dipoles files to get the EE interaction energy
     #
-    for dip_file in dip_files[0:4]:
+    for dip_file in dip_files[:]:
         #
         # Initialize dipoles and get the dipole you need to place
         #
@@ -282,7 +282,7 @@ def run_single_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
     #
     # Cycle over the dipoles files to get the EE interaction energy
     #
-    for dip_file in dip_files[0:4]:
+    for dip_file in dip_files[:]:
         #
         # Initialize dipoles and get the dipole you need to place
         #

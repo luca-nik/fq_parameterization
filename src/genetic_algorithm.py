@@ -38,11 +38,11 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Setup GA
     #
-    sol_per_pop = 25
+    sol_per_pop = 100
     elistism = sol_per_pop//4 #keep 25 % of the good boys
     #
-    ga_instance = pygad.GA(num_generations = 20,                    \
-                           num_parents_mating = 2,                  \
+    ga_instance = pygad.GA(num_generations = 100,                   \
+                           num_parents_mating = 4,                  \
                            fitness_func=fitness_function,           \
                            sol_per_pop = sol_per_pop,               \
                            num_genes = genes,                       \
@@ -62,9 +62,7 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Take the individuals of the last generation with their fitness
     #
-    last_generation_solutions = ga_instance.solutions[ga_instance.num_generations*sol_per_pop:]
-    print(last_generation_solutions)
-    print(len(last_generation_solutions))
+    last_generation_solutions = ga_instance.solutions[-sol_per_pop:]
     #
     best_solutions = select_best_solutions(ga_instance.keep_elitism,last_generation_solutions,\
                                            ga_instance.last_generation_fitness)
@@ -113,7 +111,6 @@ def run_genetic_algorithm(nanofq,reference):
             subprocess.run(['rm', '-rf', wdir+ 'g' + str(ga_instance.generations_completed)+'_p'+str(i)])
         except:
             pass
-    sys.exit()
     ##
     ## Intialize the optimal force field
     ##
@@ -147,16 +144,11 @@ def select_best_solutions(elitism,solutions,fitness):
     #
     # Select a number of best solutions depending on the number of elitism
     #
-    print('fit')
-    print(fitness)
-    print(len(fitness))
     fitness_indices = np.flip(np.argsort(fitness))
     #
     sol = []
     fit = []
     pop_indx = []
-    print('solutions')
-    print(solutions)
     #
     # If no elitism keep only the best solution
     #
