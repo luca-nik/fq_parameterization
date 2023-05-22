@@ -14,13 +14,27 @@ def fitness_evaluator(computed_values,normalized_reference):
     #
     # Feature normalization (E-mu)/sigma
     #
-    comp_energies = np.asarray(computed_values['energies'])
-    comp_energies = (comp_energies - np.mean(comp_energies))/np.std(comp_energies)
-    comp_polar = np.asarray(computed_values['polar'])
-    comp_polar = (comp_polar - np.mean(comp_polar))/np.std(comp_polar)
+    if genetic_algortihm_tools.normalization_method == 'gaussianize':
+        comp_energies = np.asarray(computed_values['energies'])
+        comp_energies = (comp_energies - np.mean(comp_energies))/np.std(comp_energies)
+        #
+        comp_polar = np.asarray(computed_values['polar'])
+        comp_polar = (comp_polar - np.mean(comp_polar))/np.std(comp_polar)
+    #
+    # Feature normalization E_i = Ecomp_i*(1/Eref_i)
+    #
+    else:
+        comp_energies = np.asarray(comperence['energies'])
+        comp_energies = comp_energies*normalized_reference['energies']
+        #
+        comp_polar = np.asarray(comperence['polar'])
+        comp_polar = comp_polar*normalized_reference['polar']
+    #
+    # Compute Loss
     #
     loss = np.sqrt(np.linalg.norm(comp_energies-normalized_reference['energies'])**2 + \
                    np.linalg.norm(comp_polar-normalized_reference['polar'])**2)
+    
     #
     return (1.0/loss)
 #

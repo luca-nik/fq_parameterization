@@ -18,7 +18,7 @@ import subprocess
 
 
 def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_files = [], clusters_files = [], \
-                           nanofq_seed = '', polarizable_embedding_seed = ''):
+                           nanofq_seed = '', polarizable_embedding_seed = '', normalization = 'to_one'):
     global wdir
     global reference 
     global normalized_reference 
@@ -27,25 +27,46 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
     global nanofq
     global initial_PE
     global log_file
+    global noarmalization_method 
     #
     wdir = workdir
     reference = reference_dictionary.copy()
     normalized_reference = reference_dictionary.copy()
+                           
     dip_files = dipoles_files.copy()
     clust_files = clusters_files.copy()
     nanofq = nanofq_seed
     initial_PE = polarizable_embedding_seed
     log_file = open(wdir + 'GA_logfile.txt', 'w+')
     #
+    if normalization == 'to_one':
+        normalization_method = 'to_one'
+    else:
+        normalization_method = 'gaussianize'
+    #
     # Feature normalization (E-mu)/sigma
     #
-    ref_energies = np.asarray(reference['energies'])
-    ref_energies = (ref_energies - np.mean(ref_energies))/np.std(ref_energies)
-    ref_polar = np.asarray(reference['polar'])
-    ref_polar = (ref_polar - np.mean(ref_polar))/np.std(ref_polar)
-    normalized_reference['energies'] = ref_energies.copy()
-    normalized_reference['polar'] = ref_polar.copy()
-    
+    if normalization_method == 'gaussianize':
+        ref_energies = np.asarray(reference['energies'])
+        ref_energies = (ref_energies - np.mean(ref_energies))/np.std(ref_energies)
+        #
+        ref_polar = np.asarray(reference['polar'])
+        ref_polar = (ref_polar - np.mean(ref_polar))/np.std(ref_polar)
+        #
+        normalized_reference['energies'] = ref_energies.copy()
+        normalized_reference['polar'] = ref_polar.copy()
+    #
+    # Feature normalization E = 1
+    #
+    else:
+        ref_energies = np.asarray(reference['energies'])
+        ref_energies = 1.0/ref_energies
+        #
+        ref_polar = np.asarray(reference['polar'])
+        ref_polar = 1.0/ref_polar
+        #
+        normalized_reference['energies'] = ref_energies.copy()
+        normalized_reference['polar'] = ref_polar.copy()
 #
 #
 def PE_run_and_fit(ga_instance,solution,solution_idx):
