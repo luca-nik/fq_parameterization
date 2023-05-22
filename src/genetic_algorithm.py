@@ -12,28 +12,34 @@ import subprocess
 
 def fitness_evaluator(computed_values,normalized_reference):
     #
+    comp_energies = np.asarray(computed_values['energies'])
+    comp_polar = np.asarray(computed_values['polar'])
+    #
     # Feature normalization (E-mu)/sigma
     #
-    if genetic_algortihm_tools.normalization_method == 'gaussianize':
-        comp_energies = np.asarray(computed_values['energies'])
+    if genetic_algorithm_tools.normalization_method == 'gaussianize':
+        #
         comp_energies = (comp_energies - np.mean(comp_energies))/np.std(comp_energies)
         #
-        comp_polar = np.asarray(computed_values['polar'])
         comp_polar = (comp_polar - np.mean(comp_polar))/np.std(comp_polar)
+        #
+        # Compute Loss sqrt(sum(E-Eref)**2/N_Eref + sum(alpha-alpha_ref)**2/N_alpha_ref
+        #
+        loss = np.sqrt(np.sum(np.square(comp_energies-normalized_reference['energies']))/len(comp_energies) + \
+                       np.sum(np.square(comp_polar-normalized_reference['polar']))/len(comp_polar))
     #
     # Feature normalization E_i = Ecomp_i*(1/Eref_i)
     #
     else:
-        comp_energies = np.asarray(comperence['energies'])
+        #
         comp_energies = comp_energies*normalized_reference['energies']
         #
-        comp_polar = np.asarray(comperence['polar'])
-        comp_polar = comp_polar*normalized_reference['polar']
-    #
-    # Compute Loss
-    #
-    loss = np.sqrt(np.linalg.norm(comp_energies-normalized_reference['energies'])**2 + \
-                   np.linalg.norm(comp_polar-normalized_reference['polar'])**2)
+        comp_polar = np.trace(comp_polar*normalized_reference['polar'])
+        #
+        # Compute Loss sqrt(sum(E-1)**2/N_Eref + sum(alpha-1)**2/N_alpha_ref
+        #
+        loss = np.sqrt(np.sum(np.square(comp_energies - 1.0))/len(comp_energies) + \
+                       np.sum(np.square(comp_polar    - 1.0))/len(comp_polar))
     
     #
     return (1.0/loss)
@@ -52,10 +58,10 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Setup GA
     #
-    sol_per_pop = 100
+    sol_per_pop = 5
     elistism = sol_per_pop//4 #keep 25 % of the good boys
     #
-    ga_instance = pygad.GA(num_generations = 100,                   \
+    ga_instance = pygad.GA(num_generations = 4,                     \
                            num_parents_mating = 4,                  \
                            fitness_func=fitness_function,           \
                            sol_per_pop = sol_per_pop,               \

@@ -27,7 +27,7 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
     global nanofq
     global initial_PE
     global log_file
-    global noarmalization_method 
+    global normalization_method 
     #
     wdir = workdir
     reference = reference_dictionary.copy()
@@ -67,6 +67,7 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
         #
         normalized_reference['energies'] = ref_energies.copy()
         normalized_reference['polar'] = ref_polar.copy()
+    #
 #
 #
 def PE_run_and_fit(ga_instance,solution,solution_idx):
@@ -144,7 +145,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Cycle over the clusters to get the polarizability
     #
-    for clust_file in clust_files:
+    for clust_file in clust_files[:]:
         #
         #
         #
@@ -170,7 +171,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
         #
         # Get polar
         #
-        polar.append(new_nanofq.get_polar(which = 'isotropic'))
+        polar.append(new_nanofq.get_polar(which = 'tensor'))
     #
     # Remove the directory
     #
@@ -339,7 +340,7 @@ def run_single_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
     #
     # Cycle over the clusters to get the polarizability
     #
-    for clust_file in clust_files:
+    for clust_file in clust_files[:]:
         #
         #
         #
@@ -365,7 +366,7 @@ def run_single_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
         #
         # Get polar
         #
-        polar.append(new_nanofq.get_polar(which = 'isotropic'))
+        polar.append(new_nanofq.get_polar(which = 'tensor'))
     #
     # Evaluate fitness of the current individual
     #

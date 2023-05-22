@@ -139,4 +139,61 @@ class molecule:
                 atomtypes.append(i)
         #
         return atomtypes
+    #
+    def join_with(self, system2, clear_overlapping_atoms = True, threshold = 0):
+        # Routine to join together two molecule objects into one
+        # If you use lattice parameter and tolerance (both in angstrom), then you clear the atoms closer than threshold
+        
+        newCoord = np.concatenate((self.coords, system2.coords), axis = 0)
+        atomtypes = self.atomtypes + system2.atomtypes
+        new_system = molecule(atomtypes, newCoord)
+        if clear_overlapping_atoms:
+            new_system = new_system.clear_overlapping_atoms(threshold = threshold )
+        return new_system 
+    #
+    def clear_overlapping_atoms(self, threshold = 0):
+        """when you join two systems it can happen that you have overlapping atoms"""
+        """threshold for deleting atoms in  angstrom"""
+        newcoord = [] 
+        newatomtypes = []
+        #
+        # Clear only overlapping atoms
+        #
+        if threshold == 0:
+            for i,coord in enumerate(self.coords):
+                if ((coord.tolist() not in newcoord)):
+                    newcoord.append(coord.tolist())
+                    newatomtypes.append(self.atomtypes[i])
+        #
+        # Clear atoms closer than lattice_parameter + tolerance
+        #
+        else:
+            tooclose_list = []
+            for i,acoord in enumerate(self.coords):
+                if (i not in tooclose_list):
+                    for j,bcoord in enumerate(self.coords):
+                        dist = np.linalg.norm(acoord-bcoord) 
+                        if ((dist < threshold) and (i != j)) :
+                            tooclose_list.append(j)
+                            break
+            for i, coord in enumerate(self.coords):
+                if (i not in tooclose_list):
+                    newcoord.append(coord.tolist())
+                    newatomtypes.append(self.atomtypes[i])
+        #
+        new_system = molecule(newatomtypes, newcoord)
+        deleted = self.atoms - new_system.atoms
+        if deleted != 0:
+            print(f'deleted {deleted} overlapping atoms. {new_system.atoms} atoms remaining')
+        return new_system
+    #
+    def min_dist(self, system2):
+        """Gets the minimum distance between the atoms of  two molecules"""
+        mindist = -1
+        for coordinates in self.coords:
+            for coordinates2 in system2.coords:
+                dist = np.linalg.norm(coordinates-coordinates2)
+                if dist < mindist or mindist < 0 :
+                    mindist = dist
+        return mindist
 
