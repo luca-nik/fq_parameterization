@@ -60,13 +60,17 @@ def global_variables_setup(workdir = '', reference_dictionary = {}, dipoles_file
     #
     else:
         ref_energies = np.asarray(reference['energies'])
-        ref_energies = 1.0/ref_energies
+        one_over_energies = 1.0/ref_energies
         #
-        ref_polar = np.asarray(reference['polar'])
-        ref_polar = 1.0/ref_polar
+        ref_polar = np.asarray([np.diag(np.asarray(j)) for j in reference['polar']]).flatten()
+        one_over_polar = 1.0/ref_polar
         #
-        normalized_reference['energies'] = ref_energies.copy()
-        normalized_reference['polar'] = ref_polar.copy()
+        normalized_reference['energies'] = one_over_energies.copy()
+        normalized_reference['polar'] = one_over_polar.copy()
+        #
+        # Save the flattened reference polar
+        #
+        reference['polar'] = ref_polar
     #
 #
 #
@@ -106,7 +110,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Cycle over the dipoles files to get the EE interaction energy
     #
-    for dip_file in dip_files[:]:
+    for dip_file in dip_files[0:2]:
         #
         # Initialize dipoles and get the dipole you need to place
         #
@@ -145,7 +149,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Cycle over the clusters to get the polarizability
     #
-    for clust_file in clust_files[:]:
+    for clust_file in clust_files[0:2]:
         #
         #
         #
@@ -177,20 +181,32 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     if (ga_instance.generations_completed < ga_instance.num_generations):
         subprocess.run(['rm', '-rf', target_directory])
-        
+    #
+    # Save the computed values in the proper way
+    #
+    if normalization_method == 'gaussianize':
+        print('ERROR: gaussianize va sistemato nel caso which is not tensor')
+        sys.exit()
+    else:
+        flattened_polar_diag = np.asarray([np.diag(np.asarray(j)) for j in polar]).flatten()
+    #
+    computed_values = {'energies': energy,
+                       'polar'   : flattened_polar_diag}
     #
     # Evaluate fitness of the current individual
     #
-    computed_values = {'energies': energy,
-                       'polar'   : polar}
-    #
     fitness = genetic_algorithm.fitness_evaluator(computed_values,normalized_reference)
+    #
+    # Compute the errors with respect to the reference
+    #
+    energy_error = np.linalg.norm(np.array(energy)-np.array(reference['energies']))
+    polar_error  = np.linalg.norm(flattened_polar_diag-reference['polar'])  
     #
     # Print some information
     #
     log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + '\n' + \
-                   ' energy diff : ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
-    log_file.write(' polar  diff : ' + str(np.sum(np.square(np.trace(np.array(polar))-np.trace(np.array(reference['polar']))))) + '\n')
+                   ' energy diff : ' + str(energy_error) + '\n')
+    log_file.write(' polar  diff : ' + str(polar_error) + '\n')
     log_file.write(' fitness     : ' + str(fitness) + '\n')
     new_embedding.print_info(file_=log_file)
     #
@@ -204,8 +220,8 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     if (ga_instance.generations_completed == ga_instance.num_generations):
         with open(target_directory + '/infofile.txt', 'w') as info_:
             info_.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + '\n' + \
-                           ' energy diff : ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
-            info_.write(' polar  diff : ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
+                           ' energy diff : ' + str(energy_error) + '\n')
+            info_.write(' polar  diff : ' + str(polar_error) + '\n')
             info_.write(' fitness     : ' + str(fitness) + '\n')
             new_embedding.print_info(file_=info_)
             #
@@ -304,7 +320,7 @@ def run_single_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
     #
     # Cycle over the dipoles files to get the EE interaction energy
     #
-    for dip_file in dip_files[:]:
+    for dip_file in dip_files[0:2]:
         #
         # Initialize dipoles and get the dipole you need to place
         #
@@ -340,7 +356,7 @@ def run_single_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
     #
     # Cycle over the clusters to get the polarizability
     #
-    for clust_file in clust_files[:]:
+    for clust_file in clust_files[0:2]:
         #
         #
         #
@@ -368,19 +384,32 @@ def run_single_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
         #
         polar.append(new_nanofq.get_polar(which = 'tensor'))
     #
-    # Evaluate fitness of the current individual
+    # Save the computed values in the proper way
+    #
+    if normalization_method == 'gaussianize':
+        print('ERROR: gaussianize va sistemato nel caso which is not tensor')
+        sys.exit()
+    else:
+        flattened_polar_diag = np.asarray([np.diag(np.asarray(j)) for j in polar]).flatten()
     #
     computed_values = {'energies': energy,
-                       'polar'   : polar}
+                       'polar'   : flattened_polar_diag}
+    #
+    # Evaluate fitness of the current individual
     #
     fitness = genetic_algorithm.fitness_evaluator(computed_values,normalized_reference)
+    #
+    # Compute the errors with respect to the reference
+    #
+    energy_error = np.linalg.norm(np.array(energy)-np.array(reference['energies']))
+    polar_error  = np.linalg.norm(flattened_polar_diag-reference['polar'])  
     #
     # Print some information
     #
     with open(target_directory + '/infofile.txt', 'w') as info_:
         info_.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(pop_index) + '\n' + \
-                       ' energy diff : ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
-        info_.write(' polar  diff : ' + str(np.sum(np.square(np.trace(np.array(polar))-np.trace(np.array(reference['polar']))))) + '\n')
+                       ' energy diff : ' + str(energy_error) + '\n')
+        info_.write(' polar  diff : ' + str(polar_error) + '\n')
         info_.write(' fitness     : ' + str(fitness) + '\n')
         embedding.print_info(file_=info_)
         #

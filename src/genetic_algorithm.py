@@ -25,8 +25,9 @@ def fitness_evaluator(computed_values,normalized_reference):
         #
         # Compute Loss sqrt(sum(E-Eref)**2/N_Eref + sum(alpha-alpha_ref)**2/N_alpha_ref
         #
-        loss = np.sqrt(np.sum(np.square(comp_energies-normalized_reference['energies']))/len(comp_energies) + \
-                       np.sum(np.square(comp_polar-normalized_reference['polar']))/len(comp_polar))
+        energy_error_squared = np.sum(np.square(comp_energies-normalized_reference['energies']))/len(comp_energies) 
+        polar_error_squared  = np.sum(np.square(comp_polar-normalized_reference['polar']))/len(comp_polar)
+        #
     #
     # Feature normalization E_i = Ecomp_i*(1/Eref_i)
     #
@@ -34,12 +35,15 @@ def fitness_evaluator(computed_values,normalized_reference):
         #
         comp_energies = comp_energies*normalized_reference['energies']
         #
-        comp_polar = np.trace(comp_polar*normalized_reference['polar'])
+        comp_polar = computed_values['polar']*normalized_reference['polar']
         #
         # Compute Loss sqrt(sum(E-1)**2/N_Eref + sum(alpha-1)**2/N_alpha_ref
         #
-        loss = np.sqrt(np.sum(np.square(comp_energies - 1.0))/len(comp_energies) + \
-                       np.sum(np.square(comp_polar    - 1.0))/len(comp_polar))
+        energy_error_squared = np.sum(np.square(comp_energies - 1.0))/len(comp_energies)
+        polar_error_squared  = np.sum(np.square(comp_polar    - 1.0))/len(comp_polar)
+        #
+    #
+    loss = np.sqrt(energy_error_squared + polar_error_squared)
     
     #
     return (1.0/loss)
@@ -58,10 +62,10 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Setup GA
     #
-    sol_per_pop = 100
+    sol_per_pop = 10
     elistism = sol_per_pop//4 #keep 25 % of the good boys
     #
-    ga_instance = pygad.GA(num_generations = 100,                   \
+    ga_instance = pygad.GA(num_generations = 20,                    \
                            num_parents_mating = 4,                  \
                            fitness_func=fitness_function,           \
                            sol_per_pop = sol_per_pop,               \
@@ -73,6 +77,7 @@ def run_genetic_algorithm(nanofq,reference):
                            save_solutions=True,                     \
                            allow_duplicate_genes = False,           \
                            keep_elitism =  elistism                 \
+                           #random_seed = 1,\
                            #stop_criteria = ["saturate_10"]          \
                            )
     #
@@ -135,6 +140,10 @@ def run_genetic_algorithm(nanofq,reference):
     # Close the GA log_file
     #
     genetic_algorithm_tools.log_file.close()
+    #
+    # Print fitness
+    #
+    ga_instance.plot_fitness()
     #
     return best_solutions
 #
