@@ -58,10 +58,10 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Setup GA
     #
-    sol_per_pop = 5
+    sol_per_pop = 100
     elistism = sol_per_pop//4 #keep 25 % of the good boys
     #
-    ga_instance = pygad.GA(num_generations = 4,                     \
+    ga_instance = pygad.GA(num_generations = 100,                   \
                            num_parents_mating = 4,                  \
                            fitness_func=fitness_function,           \
                            sol_per_pop = sol_per_pop,               \
@@ -72,8 +72,8 @@ def run_genetic_algorithm(nanofq,reference):
                            gene_space = {'low': 0.1, 'high': 0.8},  \
                            save_solutions=True,                     \
                            allow_duplicate_genes = False,           \
-                           keep_elitism =  elistism,                \
-                           stop_criteria = ["saturate_10"]          \
+                           keep_elitism =  elistism                 \
+                           #stop_criteria = ["saturate_10"]          \
                            )
     #
     # Run GA
@@ -131,31 +131,9 @@ def run_genetic_algorithm(nanofq,reference):
             subprocess.run(['rm', '-rf', wdir+ 'g' + str(ga_instance.generations_completed)+'_p'+str(i)])
         except:
             pass
-    ##
-    ## Intialize the optimal force field
-    ##
-    #optimal_embedding             = polarizable_embedding_class.polarizable_embedding()
-    #optimal_embedding.force_field = genetic_algorithm_tools.initial_PE.force_field
-    #optimal_embedding.atomtypes   = genetic_algorithm_tools.initial_PE.atomtypes.copy()
-    #optimal_embedding.pqeq        = genetic_algorithm_tools.initial_PE.pqeq
-    #genetic_algorithm_tools.assign_new_parameters(solution,optimal_embedding)
-    ##
-    ## Print info
-    ##
-    #genetic_algorithm_tools.log_file.write('\n***************************************\n')
-    #genetic_algorithm_tools.log_file.write('\n')
-    #genetic_algorithm_tools.log_file.write('-----Optimal Polarizable Embedding-----\n')
-    #genetic_algorithm_tools.log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(index) + '\n')
-    #genetic_algorithm_tools.log_file.write(' energy diff : ' + \
-    #  str(np.linalg.norm(np.array(optimal_computed_values['energies'])-np.array(reference['energies']))) + '\n')
-    #genetic_algorithm_tools.log_file.write(' polar  diff : ' + \
-    #  str(np.linalg.norm(np.array(optimal_computed_values['polar'])-np.array(reference['polar']))) + '\n')
-    #genetic_algorithm_tools.log_file.write(' fitness     : ' + str(best_fit) + '\n')
-    #optimal_embedding.print_info(file_=genetic_algorithm_tools.log_file)
-    ##
-    ##
-    ## Close the GA log_file
-    ##
+    #
+    # Close the GA log_file
+    #
     genetic_algorithm_tools.log_file.close()
     #
     return best_solutions

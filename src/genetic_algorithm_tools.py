@@ -190,7 +190,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     log_file.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(solution_idx) + '\n' + \
                    ' energy diff : ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
-    log_file.write(' polar  diff : ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
+    log_file.write(' polar  diff : ' + str(np.sum(np.square(np.trace(np.array(polar))-np.trace(np.array(reference['polar']))))) + '\n')
     log_file.write(' fitness     : ' + str(fitness) + '\n')
     new_embedding.print_info(file_=log_file)
     #
@@ -380,7 +380,7 @@ def run_single_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
     with open(target_directory + '/infofile.txt', 'w') as info_:
         info_.write('generation: ' + str(ga_instance.generations_completed) + ' member: ' + str(pop_index) + '\n' + \
                        ' energy diff : ' + str(np.linalg.norm(np.array(energy)-np.array(reference['energies']))) + '\n')
-        info_.write(' polar  diff : ' + str(np.linalg.norm(np.array(polar)-np.array(reference['polar']))) + '\n')
+        info_.write(' polar  diff : ' + str(np.sum(np.square(np.trace(np.array(polar))-np.trace(np.array(reference['polar']))))) + '\n')
         info_.write(' fitness     : ' + str(fitness) + '\n')
         embedding.print_info(file_=info_)
         #
