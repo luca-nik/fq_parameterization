@@ -62,18 +62,21 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Setup GA
     #
-    sol_per_pop = 10
-    elistism = sol_per_pop//4 #keep 25 % of the good boys
+    sol_per_pop = 100
+    elistism = sol_per_pop//20 #keep 5% of the good boys
+    gene_space = [{'low': 0.1 , 'high': 0.2},\
+                  {'low': 0.4 , 'high': 0.6},\
+                  {'low': 0.4 , 'high': 0.6}]
     #
-    ga_instance = pygad.GA(num_generations = 20,                    \
+    ga_instance = pygad.GA(num_generations = 400,                   \
                            num_parents_mating = 4,                  \
                            fitness_func=fitness_function,           \
                            sol_per_pop = sol_per_pop,               \
                            num_genes = genes,                       \
                            mutation_num_genes = genes,              \
                            random_mutation_min_val = 0.01,          \
-                           random_mutation_max_val = 0.5,           \
-                           gene_space = {'low': 0.1, 'high': 0.8},  \
+                           random_mutation_max_val = 0.05,          \
+                           gene_space = gene_space,                 \
                            save_solutions=True,                     \
                            allow_duplicate_genes = False,           \
                            keep_elitism =  elistism                 \
@@ -84,6 +87,7 @@ def run_genetic_algorithm(nanofq,reference):
     # Run GA
     #
     ga_instance.run()
+    ga_instance.save('GA_state')
     #
     # Take the individuals of the last generation with their fitness
     #
@@ -143,7 +147,7 @@ def run_genetic_algorithm(nanofq,reference):
     #
     # Print fitness
     #
-    ga_instance.plot_fitness()
+    #ga_instance.plot_fitness()
     #
     return best_solutions
 #
