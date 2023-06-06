@@ -18,7 +18,7 @@ class molecule:
         self.connected_to = [] 
         self.surface_atoms = [] 
         self.charge = charge
-
+    #
     def write_xyz(self, name = 'nome', directory = './', comment = ''):
         #
         """Procedure to write the molecule object into a formatted xyz file"""
@@ -61,6 +61,8 @@ class molecule:
                 self.atomtypes.append(line.split()[0])
         self.coords = np.asarray(coords)
         self.molecules = [0 for i in range(self.atoms)]
+    #
+    #
     #
     def get_connectivity(self, bond_threshold = 1.5, print_info = False):
         #

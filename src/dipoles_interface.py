@@ -72,7 +72,7 @@ def position_the_dipoles(molecule, print_info = False):
             #
             # Generate dipoles position:
             # 1) Along the line connecting it to the neighbours
-            # 2) Along the visector of the angle formed with the two neighbours
+            # 2) Along the bisector of the angle formed with the two neighbours
             # 3) Along the direction orthogonal to the plane identified by these atoms
             #
             connector_indices = molecule.connected_to[surf_index][:]
@@ -155,6 +155,7 @@ def position_the_dipoles(molecule, print_info = False):
         else:
             print("ERROR: more than three connecting atoms. Don't know what to do in this case.")
             sys.exit()
-
+    #
     dipoles = dipoles_class.dipoles(n_dipoles = n_dipoles, positions = positions, directions = versors)
+    #
     return dipoles 

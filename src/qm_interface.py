@@ -265,4 +265,118 @@ def adf_read_polar(adf_out_file = '', which = 'isotropic'):
 #
 #
 #
-
+#def create_adf_polar_inp(et_seed_file = '', QMmolecule_file = '', EEdipoles_file = '', which_dipoles = [],\
+#                  et_output_file_name = '', target_directory =  './', computation_name = '', single_charge = [False, 0.0]):
+#    #
+#    #
+#    distance = constants.dipoles_distance() #distance of the EE dipoles charges from their CM 
+#    #
+#    # Sanity checks
+#    #
+#    if type(which_dipoles) != list:
+#        which_dipoles = [which_dipoles]
+#    #
+#    et_create_et_EE_inp_sanity_checks(et_seed_file, QMmolecule_file, EEdipoles_file, \
+#                                   et_output_file_name, target_directory,     \
+#                                   computation_name, which_dipoles)
+#    #
+#    if target_directory[-1] != '/':
+#        target_directory +='/'
+#    #
+#    # Fetch the files
+#    #
+#    with open(et_seed_file, 'r') as seed:
+#        seed_lines = seed.readlines()
+#    #
+#    QMmolecule = molecule_class.molecule()
+#    QMmolecule.initialize_from_xyz(QMmolecule_file)
+#    #
+#    EEdipoles = dipoles_class.dipoles()
+#    EEdipoles.initialize_from_dip(EEdipoles_file)
+#    #
+#    # Sanity checks on the initialized dipoles
+#    #
+#    if (len(which_dipoles) == 0): #displace them all
+#        which_dipoles = [i for i in range(0, EEdipoles.n_dipoles)]
+#    for i in which_dipoles:
+#        if i > EEdipoles.n_dipoles:
+#            print('ERROR: creat_EE_inp called with non-existing dipole number ' + str(i)) 
+#            sys.exit()
+#    #
+#    # Initialize and work on the .inp file
+#    #
+#    with open(target_directory + et_output_file_name, 'w') as et_file:
+#        #
+#        # Fetch the basis used in the computation
+#        #
+#        basis  = 'aug-cc-pvdz'
+#        for line in seed_lines:
+#            if('basis:' in line):
+#                basis = line.split(':')[1]
+#        #
+#        # Write the .inp file with the correct information
+#        #
+#        for line in seed_lines:
+#            #
+#            if ('name:' in line):
+#                et_file.write('   name: coso\n')
+#            #
+#            elif ('charge:' in line):
+#                et_file.write('   charge: ' + str(int(QMmolecule.charge)) + '\n')
+#            #
+#            elif ('geometry' in line and 'end geometry' not in line):
+#                et_file.write('geometry \n')
+#                et_file.write('basis: '+ basis.strip() + '\n')
+#                for i, sym in enumerate(QMmolecule.atomtypes):
+#                    et_file.write(sym.rjust(2) + '  ' + \
+#                                  '{:5.5f}'.format(QMmolecule.coords[i][0]).rjust(10)+ '  ' + \
+#                                  '{:5.5f}'.format(QMmolecule.coords[i][1]).rjust(10)+ '  ' + \
+#                                  '{:5.5f}'.format(QMmolecule.coords[i][2]).rjust(10) + '\n')
+#                #
+#                et_file.write('--')
+#                #
+#                # EE embedding
+#                #
+#                if single_charge[0]:
+#                    for i,dip in enumerate(which_dipoles):
+#                        #
+#                        # Charge in CM
+#                        #
+#                        et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][0]).rjust(10)+ '  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][1]).rjust(10)+ '  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][2]).rjust(10)+ '  ' + \
+#                                       '[q = ' + str(single_charge[1]) + '] \n' )
+#                else:
+#                    for i,dip in enumerate(which_dipoles):
+#                        # 
+#                        plus_vector  =  distance*EEdipoles.directions[dip,:]
+#                        minus_vector = -distance*EEdipoles.directions[dip,:]
+#                        plus_vector_sign  = EEdipoles.signs[dip][1]
+#                        minus_vector_sign = EEdipoles.signs[dip][0]
+#                        #
+#                        # Charge in CM - distance
+#                        #
+#                        et_file.write('\n' + 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][0] + minus_vector[0]).rjust(10)+ '  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][1] + minus_vector[1]).rjust(10)+ '  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][2] + minus_vector[2]).rjust(10)+ '  ' + \
+#                                       '[q = ' + minus_vector_sign + '1.0] \n' )
+#                        #
+#                        # Charge in CM + distance
+#                        #
+#                        et_file.write( 'H ' + ' [IMol=' + str(i+1).rjust(2) + ']  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][0] + plus_vector[0]).rjust(10)+ '  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][1] + plus_vector[1]).rjust(10)+ '  ' + \
+#                                       '{:5.5f}'.format(EEdipoles.positions[dip][2] + plus_vector[2]).rjust(10)+ '  ' + \
+#                                       '[q = ' + plus_vector_sign + '1.0] \n' )
+#            #
+#            elif('xxx' in line):
+#                pass
+#            #
+#            elif('basis:' in line): #already done
+#                pass
+#            #
+#            else:
+#                et_file.write(line)
+#    #
