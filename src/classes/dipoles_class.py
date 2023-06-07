@@ -22,7 +22,7 @@ class dipoles:
         self.check_and_assign_signs(signs)
         self.name = ''
     #
-    # Write xyz procedure
+    ###############################################################################################
     #
     def write_xyz(self, name = 'nome', directory = './', comment = ''):
         #
@@ -40,7 +40,7 @@ class dipoles:
                                '{:5.5f}'.format(self.positions[i][1]).rjust(10)+ '  ' + \
                                '{:5.5f}'.format(self.positions[i][2]).rjust(10))
     #
-    # Write dip procedure
+    ###############################################################################################
     #
     def write_dip(self, name = 'nome', directory = './'):
         #
@@ -67,7 +67,7 @@ class dipoles:
                                self.signs[i].rjust(6)
                                )
     #
-    # Initialize from dip procedure
+    ###############################################################################################
     #
     def initialize_from_dip(self, file):  
         #                                  
@@ -95,199 +95,8 @@ class dipoles:
         self.check_and_assign_signs(signs) 
         self.name = file
     #
-    def move_dipoles(self, which_dipoles = [], displacements = [], create_new_dipoles = True):
-        #
-        """Procedure to move some dipoles of a certain displacement
-
-           which_dipoles is a list of integers identyfing the dipoles
-           displacements is a list of floats which are expressed in Angstrom
-           the displacement happen along the line and the direction identified by dipole.directions
-
-           REMEMBER: the dipoles are generated already with a displacement of 1 Angstrom from
-                     the reference atoms. This will add to your displacement
-        """
-        #
-        # Sanity checks
-        #
-        if type(which_dipoles) != list:
-            which_dipoles = [which_dipoles]
-        #
-        if (len(which_dipoles) == 0):
-            which_dipoles = [i for i in range(0, self.n_dipoles)] #displace them all
-        #
-        elif(len(which_dipoles) != len(set(which_dipoles))):
-            print('ERROR: move_dipoles you have duplicates in which_dipoles' )
-            sys.exit()
-        #
-        for i in which_dipoles:
-            if type(i) != int:
-                print('ERROR: move_dipoles called with non-integer which_dipoles list')
-                sys.exit()
-        #
-        if type(displacements) != list:
-            displacements = [displacements]
-        #
-        if (len(displacements) == 0):
-            print('WARNING: move_dipoles called without any displacement, dipoles object was not modified')
-            return
-        try:
-            checked_displ = [float(i) for i in displacements]
-        except ValueError:
-            print('ERROR: move_dipoles called with non-float displacements')
-            sys.exit()
-        #
-        if (len(displacements) == 1):
-            checked_displ = [float(displacements[0]) for i in range(0,len(which_dipoles))] #you move all dipoles of the same amount
-        else:
-            if(len(displacements) != len(which_dipoles)):
-               print('ERROR: move_dipoles displacements do not match the number of dipoles')
-               sys.exit()
-        #
-        for i in which_dipoles:
-            if type(i) != int:
-                print('ERROR: move_dipoles called with non-integer which_dipoles list')
-                sys.exit()
-            elif i > self.n_dipoles:
-                print('ERROR: move_dipoles moving non-existing dipole number ' + str(i)) 
-                sys.exit()
-        #
-        # Move the dipoles
-        #
-        new_positions  = self.positions.copy()
-        #
-        for i,dip in enumerate(which_dipoles):
-            new_positions[dip,:] += checked_displ[i]*self.directions[dip,:]
-        #
-        if create_new_dipoles:
-            new_directions = self.directions.copy()
-            new_dipoles = dipoles(n_dipoles = self.n_dipoles,\
-                          positions = new_positions, directions = new_directions)
-            return new_dipoles
-        else:
-            self.positions = new_positions.copy()
+    ###############################################################################################
     #
-    # change signs procedure
-    #
-    def change_sign(self, which_dipoles = [], signs = []):
-        #
-        """Procedure to change the sign of which_dipoles according to the input signs list"""
-        #
-        # Sanity checks
-        #
-        if (type(which_dipoles) != list):
-            which_dipoles = [which_dipoles]
-        #
-        if (type(signs) != list):
-            signs = [signs]
-        #
-        if ((len(which_dipoles) == 0 and len(signs) > 1) or \
-            (len(which_dipoles) != 0 and len(signs) > len(which_dipoles))):
-            print('ERROR: change_signs called but len(signs) > len(which_dipoles)')
-            sys.exit()
-        #
-        elif (len(which_dipoles) == 0 and len(signs) == 0):
-            return
-        #
-        elif (len(which_dipoles) == 0 and len(signs) == 1):
-            signs_to_check = [signs[0] for i in range(0,self.n_dipoles)]
-            self.check_and_assign_signs(signs_to_check)
-        #
-        elif(len(which_dipoles) != len(set(which_dipoles))):
-            print('ERROR: change_signs you have duplicates in which_dipoles' )
-            sys.exit()
-        #
-        elif (len(which_dipoles) != 0 and len(which_dipoles) == len(signs)):
-            #
-            for i in which_dipoles:
-                if type(i) != int:
-                    print('ERROR: change_signs called with non-integer which_dipoles list')
-                    sys.exit()
-                elif i > self.n_dipoles:
-                    print('ERROR: change_signs changing sign to non-existing dipole number ' + str(i)) 
-                    sys.exit()
-            #
-            signs_to_check = self.signs.copy()
-            for index, dipole in enumerate(which_dipoles):
-                signs_to_check[dipole] = signs[index]
-            self.check_and_assign_signs(signs_to_check)
-        #
-        elif (len(which_dipoles) != 0 and len(which_dipoles) != len(signs)):
-            #
-            if (len(signs) == 0 or len(signs) > 1 ):
-                print('ERROR: change_signs called with unclear sign assignement')
-                sys.exit()
-            #
-            else:
-                #
-                for i in which_dipoles:
-                    if type(i) != int:
-                        print('ERROR: change_signs called with non-integer which_dipoles list')
-                        sys.exit()
-                    elif i > self.n_dipoles:
-                        print('ERROR: change_signs changing sign to non-existing dipole number ' + str(i)) 
-                        sys.exit()
-                #
-                signs_to_check = self.signs.copy()
-                for index, dipole in enumerate(which_dipoles):
-                    signs_to_check[dipole] = signs[0]
-                self.check_and_assign_signs(signs_to_check)
-        #
-        else:
-            print('ERROR: change_signs did not understand the input values')
-            print('')
-            print('HELP : which_dipoles = list of integers')
-            print("       signs         = list of sign strings '+-' or '-+' or a single sign string")
-            sys.exit()
-
-            
-    #
-    # Check signs procedure
-    #
-    def check_and_assign_signs(self, signs = []):
-        #
-        """Procedure to make the sanity checks and assign the signs to a dipole object"""
-        #
-        if (type(signs) != list and type(signs) == str ):
-            self.signs = [signs for i in range(0,self.n_dipoles)]
-        #
-        elif (type(signs) != list and type(signs) != str ):
-            print('WARNING: check_and_assign_signs initializing a dipole object with an unvalid signs option. Usign default +-')
-            self.signs = ['+-' for i in range(0,self.n_dipoles)]
-        #
-        elif (type(signs) == list and len(signs) == 0):
-            self.signs = ['+-' for i in range(0,self.n_dipoles)]
-        #
-        elif (type(signs) == list and len(signs) == self.n_dipoles):
-            #
-            for sign in signs:
-                #
-                try:
-                    value = sign.strip()
-                except AttributeError:
-                    print('ERROR: check_and_assign_signs initializing a dipole object with signs which are not understandable')
-                    print('')
-                    print('HELP : signs = list of sign strings (+- or -+) or a single sign strig')
-                    sys.exit()
-                #
-                if (value != '+-' and value != '-+'):
-                    print('ERROR: check_and_assign_signs initializing a dipole object with signs which are not understandable')
-                    print('')
-                    print('HELP : signs = list of sign strings (+- or -+) or a single sign strig')
-                    sys.exit()
-            #
-            self.signs = [signs[i].strip() for i in range(0,self.n_dipoles)]
-        #
-        elif(type(signs) == list and len(signs) != self.n_dipoles and len(signs) != 0):
-            print('ERROR: check_and_assign_signs initializing a dipole object with signs list shorter than the number of dipoles')
-            sys.exit()
-        #
-        else:
-            print('ERROR: check_and_assign_signs initializing a dipole object with not understandable signs')
-            print('')
-            print('HELP : signs = list of sign strings (+- or -+) or a single sign strig')
-            sys.exit()
-        #
-
     def position_the_dipoles_around(self, molecule, print_info = False):
         #
         """Procedure to generate the location of the fixed dipoles base on: """
@@ -300,7 +109,7 @@ class dipoles:
         versors   = []
         signs = '+-'
         #
-        for surf_index in molecule.surface_atoms: 
+        for surf_index in range(0,molecule.atoms): 
             #
             # Sanity  check
             #
@@ -402,46 +211,242 @@ class dipoles:
                 #
                 #positions.append(molecule.coords[surf_index] - versor3) #this is on the bisector but on the acute side
                 # 
-            elif (molecule.number_connections[surf_index] == 3):
-                #
-                # Generate dipoles position symmetrically over and below the plane identified by the atom and
-                # the other atoms it is connected to. We try to use the backbone of the molecule to build the 
-                # planes
-                #
-                connector_indices = molecule.connected_to[surf_index][:]
-                connectors_not_on_surface = [i for i in connector_indices if i not in molecule.surface_atoms]
-                #
-                if (len(connectors_not_on_surface) != 2):
-                    #
-                    #Either 3 or less than 2 remaining neighbours: i take the first two to define the plane
-                    #
-                    connector_indices = connector_indices[0:2]
-                else:
-                    connector_indices = connectors_not_on_surface.copy()
-                #
-                # Now generate the direction orthogonal to the plane
-                #
-                versor1 = np.asarray(molecule.coords[surf_index] - molecule.coords[connector_indices[0]])/\
-                          np.linalg.norm(molecule.coords[surf_index] - molecule.coords[connector_indices[0]])
-                #
-                versor2 = np.asarray(molecule.coords[surf_index] - molecule.coords[connector_indices[1]])/\
-                          np.linalg.norm(molecule.coords[surf_index] - molecule.coords[connector_indices[1]])
-                #
-                versor3 = np.cross(versor1,versor2)
-                versor3 = versor3/np.linalg.norm(versor3)
-                #
-                positions.append(molecule.coords[surf_index] + versor3)
-                versors.append(versor3)
-                n_dipoles += 1
-                positions.append(molecule.coords[surf_index] - versor3)
-                versors.append(-versor3)
-                n_dipoles += 1
-                #
-            else:
-                print("ERROR: more than three connecting atoms. Don't know what to do in this case.")
-                sys.exit()
+            #
+            # TODO: smart generalization to more than two connections
+            #
+            #elif (molecule.number_connections[surf_index] == 3):
+            #    #
+            #    # Generate dipoles position symmetrically over and below the plane identified by the atom and
+            #    # the other atoms it is connected to. We try to use the backbone of the molecule to build the 
+            #    # planes
+            #    #
+            #    connector_indices = molecule.connected_to[surf_index][:]
+            #    connectors_not_on_surface = [i for i in connector_indices if i not in molecule.surface_atoms]
+            #    #
+            #    if (len(connectors_not_on_surface) != 2):
+            #        #
+            #        #Either 3 or less than 2 remaining neighbours: i take the first two to define the plane
+            #        #
+            #        connector_indices = connector_indices[0:2]
+            #    else:
+            #        connector_indices = connectors_not_on_surface.copy()
+            #    #
+            #    # Now generate the direction orthogonal to the plane
+            #    #
+            #    versor1 = np.asarray(molecule.coords[surf_index] - molecule.coords[connector_indices[0]])/\
+            #              np.linalg.norm(molecule.coords[surf_index] - molecule.coords[connector_indices[0]])
+            #    #
+            #    versor2 = np.asarray(molecule.coords[surf_index] - molecule.coords[connector_indices[1]])/\
+            #              np.linalg.norm(molecule.coords[surf_index] - molecule.coords[connector_indices[1]])
+            #    #
+            #    versor3 = np.cross(versor1,versor2)
+            #    versor3 = versor3/np.linalg.norm(versor3)
+            #    #
+            #    positions.append(molecule.coords[surf_index] + versor3)
+            #    versors.append(versor3)
+            #    n_dipoles += 1
+            #    positions.append(molecule.coords[surf_index] - versor3)
+            #    versors.append(-versor3)
+            #    n_dipoles += 1
+            #    #
+            #else:
+            #    print("ERROR: more than three connecting atoms. Don't know what to do in this case.")
+            #    sys.exit()
     
         self.n_dipoles = n_dipoles
         self.positions = positions.copy()
         self.directions = versors.copy()
         self.signs = [signs for i in range(0,n_dipoles)]
+    #
+    ###############################################################################################
+    #
+    def move_dipoles(self, which_dipoles = [], displacements = [], create_new_dipoles = True):
+        #
+        """Procedure to move some dipoles of a certain displacement
+
+           which_dipoles is a list of integers identyfing the dipoles
+           displacements is a list of floats which are expressed in Angstrom
+           the displacement happen along the line and the direction identified by dipole.directions
+
+           REMEMBER: the dipoles are generated already with a displacement of 1 Angstrom from
+                     the reference atoms. This will add to your displacement
+        """
+        #
+        # Sanity checks
+        #
+        if type(which_dipoles) != list:
+            which_dipoles = [which_dipoles]
+        #
+        if (len(which_dipoles) == 0):
+            which_dipoles = [i for i in range(0, self.n_dipoles)] #displace them all
+        #
+        elif(len(which_dipoles) != len(set(which_dipoles))):
+            print('ERROR: move_dipoles you have duplicates in which_dipoles' )
+            sys.exit()
+        #
+        for i in which_dipoles:
+            if type(i) != int:
+                print('ERROR: move_dipoles called with non-integer which_dipoles list')
+                sys.exit()
+        #
+        if type(displacements) != list:
+            displacements = [displacements]
+        #
+        if (len(displacements) == 0):
+            print('WARNING: move_dipoles called without any displacement, dipoles object was not modified')
+            return
+        try:
+            checked_displ = [float(i) for i in displacements]
+        except ValueError:
+            print('ERROR: move_dipoles called with non-float displacements')
+            sys.exit()
+        #
+        if (len(displacements) == 1):
+            checked_displ = [float(displacements[0]) for i in range(0,len(which_dipoles))] #you move all dipoles of the same amount
+        else:
+            if(len(displacements) != len(which_dipoles)):
+               print('ERROR: move_dipoles displacements do not match the number of dipoles')
+               sys.exit()
+        #
+        for i in which_dipoles:
+            if type(i) != int:
+                print('ERROR: move_dipoles called with non-integer which_dipoles list')
+                sys.exit()
+            elif i > self.n_dipoles:
+                print('ERROR: move_dipoles moving non-existing dipole number ' + str(i)) 
+                sys.exit()
+        #
+        # Move the dipoles
+        #
+        new_positions  = self.positions.copy()
+        #
+        for i,dip in enumerate(which_dipoles):
+            new_positions[dip,:] += checked_displ[i]*self.directions[dip,:]
+        #
+        if create_new_dipoles:
+            new_directions = self.directions.copy()
+            new_dipoles = dipoles(n_dipoles = self.n_dipoles,\
+                          positions = new_positions, directions = new_directions)
+            return new_dipoles
+        else:
+            self.positions = new_positions.copy()
+    #
+    ###############################################################################################
+    #
+    def change_sign(self, which_dipoles = [], signs = []):
+        #
+        """Procedure to change the sign of which_dipoles according to the input signs list"""
+        #
+        # Sanity checks
+        #
+        if (type(which_dipoles) != list):
+            which_dipoles = [which_dipoles]
+        #
+        if (type(signs) != list):
+            signs = [signs]
+        #
+        if ((len(which_dipoles) == 0 and len(signs) > 1) or \
+            (len(which_dipoles) != 0 and len(signs) > len(which_dipoles))):
+            print('ERROR: change_signs called but len(signs) > len(which_dipoles)')
+            sys.exit()
+        #
+        elif (len(which_dipoles) == 0 and len(signs) == 0):
+            return
+        #
+        elif (len(which_dipoles) == 0 and len(signs) == 1):
+            signs_to_check = [signs[0] for i in range(0,self.n_dipoles)]
+            self.check_and_assign_signs(signs_to_check)
+        #
+        elif(len(which_dipoles) != len(set(which_dipoles))):
+            print('ERROR: change_signs you have duplicates in which_dipoles' )
+            sys.exit()
+        #
+        elif (len(which_dipoles) != 0 and len(which_dipoles) == len(signs)):
+            #
+            for i in which_dipoles:
+                if type(i) != int:
+                    print('ERROR: change_signs called with non-integer which_dipoles list')
+                    sys.exit()
+                elif i > self.n_dipoles:
+                    print('ERROR: change_signs changing sign to non-existing dipole number ' + str(i)) 
+                    sys.exit()
+            #
+            signs_to_check = self.signs.copy()
+            for index, dipole in enumerate(which_dipoles):
+                signs_to_check[dipole] = signs[index]
+            self.check_and_assign_signs(signs_to_check)
+        #
+        elif (len(which_dipoles) != 0 and len(which_dipoles) != len(signs)):
+            #
+            if (len(signs) == 0 or len(signs) > 1 ):
+                print('ERROR: change_signs called with unclear sign assignement')
+                sys.exit()
+            #
+            else:
+                #
+                for i in which_dipoles:
+                    if type(i) != int:
+                        print('ERROR: change_signs called with non-integer which_dipoles list')
+                        sys.exit()
+                    elif i > self.n_dipoles:
+                        print('ERROR: change_signs changing sign to non-existing dipole number ' + str(i)) 
+                        sys.exit()
+                #
+                signs_to_check = self.signs.copy()
+                for index, dipole in enumerate(which_dipoles):
+                    signs_to_check[dipole] = signs[0]
+                self.check_and_assign_signs(signs_to_check)
+        #
+        else:
+            print('ERROR: change_signs did not understand the input values')
+            print('')
+            print('HELP : which_dipoles = list of integers')
+            print("       signs         = list of sign strings '+-' or '-+' or a single sign string")
+            sys.exit()
+    #
+    ###############################################################################################
+    #
+    def check_and_assign_signs(self, signs = []):
+        #
+        """Procedure to make the sanity checks and assign the signs to a dipole object"""
+        #
+        if (type(signs) != list and type(signs) == str ):
+            self.signs = [signs for i in range(0,self.n_dipoles)]
+        #
+        elif (type(signs) != list and type(signs) != str ):
+            print('WARNING: check_and_assign_signs initializing a dipole object with an unvalid signs option. Usign default +-')
+            self.signs = ['+-' for i in range(0,self.n_dipoles)]
+        #
+        elif (type(signs) == list and len(signs) == 0):
+            self.signs = ['+-' for i in range(0,self.n_dipoles)]
+        #
+        elif (type(signs) == list and len(signs) == self.n_dipoles):
+            #
+            for sign in signs:
+                #
+                try:
+                    value = sign.strip()
+                except AttributeError:
+                    print('ERROR: check_and_assign_signs initializing a dipole object with signs which are not understandable')
+                    print('')
+                    print('HELP : signs = list of sign strings (+- or -+) or a single sign strig')
+                    sys.exit()
+                #
+                if (value != '+-' and value != '-+'):
+                    print('ERROR: check_and_assign_signs initializing a dipole object with signs which are not understandable')
+                    print('')
+                    print('HELP : signs = list of sign strings (+- or -+) or a single sign strig')
+                    sys.exit()
+            #
+            self.signs = [signs[i].strip() for i in range(0,self.n_dipoles)]
+        #
+        elif(type(signs) == list and len(signs) != self.n_dipoles and len(signs) != 0):
+            print('ERROR: check_and_assign_signs initializing a dipole object with signs list shorter than the number of dipoles')
+            sys.exit()
+        #
+        else:
+            print('ERROR: check_and_assign_signs initializing a dipole object with not understandable signs')
+            print('')
+            print('HELP : signs = list of sign strings (+- or -+) or a single sign strig')
+            sys.exit()
+        #

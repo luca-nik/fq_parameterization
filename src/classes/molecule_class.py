@@ -16,8 +16,10 @@ class molecule:
         self.molecules = [0 for i in range(self.atoms)]
         self.number_connections = [] 
         self.connected_to = [] 
-        self.surface_atoms = [] 
+        #self.surface_atoms = [] 
         self.charge = charge
+    #
+    ###############################################################################################
     #
     def write_xyz(self, name = 'nome', directory = './', comment = ''):
         #
@@ -35,6 +37,8 @@ class molecule:
                                '{:5.5f}'.format(self.coords[i][0]).rjust(10)+ '  ' + \
                                '{:5.5f}'.format(self.coords[i][1]).rjust(10)+ '  ' + \
                                '{:5.5f}'.format(self.coords[i][2]).rjust(10))
+    #
+    ###############################################################################################
     #
     def initialize_from_xyz(self, file):
         #
@@ -62,7 +66,7 @@ class molecule:
         self.coords = np.asarray(coords)
         self.molecules = [0 for i in range(self.atoms)]
     #
-    #
+    ###############################################################################################
     #
     def get_connectivity(self, bond_threshold = 1.5, print_info = False):
         #
@@ -109,27 +113,7 @@ class molecule:
                 #
                 print(at + ' ' + str(i).ljust(len(str(self.atoms))) +  ' - connected to ' + str(self.number_connections[i]).ljust(2) + ' atoms : ' + info_string)
     #
-    def get_interface_atoms(self,print_info = False):
-        #
-        """Procedure to get the atoms which are at the interface with the solvent""" ## DA SPIEGARE MEGLIO STA COSA
-        #
-        # Sanity check
-        #
-        if (len(self.number_connections) == 0):
-            print('ERROR: you need to compute the connectivities before identifying interface atoms')
-            sys.exit()
-        #
-        if print_info:
-            print('Printing the atoms which are at the interface with the solvent:')
-        #
-        number_connections_expected =  constants.number_connections()
-        #
-        for i, at in enumerate(self.atomtypes):
-            if self.number_connections[i] <= number_connections_expected[at]:
-                self.surface_atoms.append(i)
-            #
-            if print_info:
-               print(at + ' ' + str(i).ljust(len(str(self.atoms)))) 
+    ###############################################################################################
     #
     def get_PE_atomtypes(self):
         #
@@ -142,6 +126,8 @@ class molecule:
         #
         return atomtypes
     #
+    ###############################################################################################
+    #
     def join_with(self, system2, clear_overlapping_atoms = True, threshold = 0):
         # Routine to join together two molecule objects into one
         # If you use lattice parameter and tolerance (both in angstrom), then you clear the atoms closer than threshold
@@ -152,6 +138,8 @@ class molecule:
         if clear_overlapping_atoms:
             new_system = new_system.clear_overlapping_atoms(threshold = threshold )
         return new_system 
+    #
+    ###############################################################################################
     #
     def clear_overlapping_atoms(self, threshold = 0):
         """when you join two systems it can happen that you have overlapping atoms"""
@@ -189,6 +177,8 @@ class molecule:
             print(f'deleted {deleted} overlapping atoms. {new_system.atoms} atoms remaining')
         return new_system
     #
+    ###############################################################################################
+    #
     def min_dist(self, system2):
         """Gets the minimum distance between the atoms of  two molecules"""
         mindist = -1
@@ -199,3 +189,27 @@ class molecule:
                     mindist = dist
         return mindist
 
+#
+# This might be useful in the future
+#
+#    def get_interface_atoms(self,print_info = False):
+#        #
+#        """Procedure to get the atoms which are at the interface with the solvent""" ## DA SPIEGARE MEGLIO STA COSA
+#        #
+#        # Sanity check
+#        #
+#        if (len(self.number_connections) == 0):
+#            print('ERROR: you need to compute the connectivities before identifying interface atoms')
+#            sys.exit()
+#        #
+#        if print_info:
+#            print('Printing the atoms which are at the interface with the solvent:')
+#        #
+#        number_connections_expected =  constants.number_connections()
+#        #
+#        for i, at in enumerate(self.atomtypes):
+#            if self.number_connections[i] <= number_connections_expected[at]:
+#                self.surface_atoms.append(i)
+#            #
+#            if print_info:
+#               print(at + ' ' + str(i).ljust(len(str(self.atoms)))) 
