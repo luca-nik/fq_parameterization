@@ -288,7 +288,7 @@ class dipoles:
             sys.exit()
         #
 
-    def position_the_dipoles(self, molecule, print_info = False):
+    def position_the_dipoles_around(self, molecule, print_info = False):
         #
         """Procedure to generate the location of the fixed dipoles base on: """
         """ -The connectivity of the molecule
@@ -298,6 +298,7 @@ class dipoles:
         n_dipoles = 0
         positions = []
         versors   = []
+        signs = '+-'
         #
         for surf_index in molecule.surface_atoms: 
             #
@@ -441,5 +442,6 @@ class dipoles:
                 sys.exit()
     
         self.n_dipoles = n_dipoles
-        self.positions = positions
-        self.directions = versors
+        self.positions = positions.copy()
+        self.directions = versors.copy()
+        self.signs = [signs for i in range(0,n_dipoles)]
