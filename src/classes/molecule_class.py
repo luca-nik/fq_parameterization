@@ -4,7 +4,16 @@ import sys
 #
 class molecule:
     #
-    """Molecule class object"""
+    """Molecule object, having:
+       -atomtypes             : list of str
+       -atoms                 : int
+       -coords                : numpy array of floats [[x1,y1,z1],[x2,y2,z2],...]
+       -number_of_connections : list of int of dimension atoms
+       -connected_to          : nested list of int where element i has dimension number_of_connections[i]
+       -charge                : charge of the molecule
+
+       A molecule object can be initialized by the user or it can be read from a .xyz file
+    """
     #
     def __init__(self, atomtypes=[],coordinates=[], charge = 0):
         #
@@ -16,22 +25,31 @@ class molecule:
         self.molecules = [0 for i in range(self.atoms)]
         self.number_connections = [] 
         self.connected_to = [] 
-        #self.surface_atoms = [] 
         self.charge = charge
+        #self.surface_atoms = [] 
     #
     ###############################################################################################
     #
-    def write_xyz(self, name = 'nome', directory = './', comment = ''):
+    def write_xyz(self, name = 'nome', directory = './'):
         #
-        """Procedure to write the molecule object into a formatted xyz file"""
+        """Procedure to write the molecule object into a formatted .xyz file
+           Note: charge info is written in the comment line as CHARGE: XXX
+        """
         #
         if directory[-1] != '/':
             directory +='/'
+        #
         with open(directory+name+'.xyz', 'w') as outfile:
+            #
             outfile.write(str(self.atoms) + '\n')
-            outfile.write(str(comment))
+            #
+            # write charge
+            #
             if (self.charge != 0):
                 outfile.write('  CHARGE:' + str(charge))
+            #
+            # Write coordinates
+            #
             for i,sym in enumerate(self.atomtypes):
                 outfile.write('\n' + sym.rjust(2) + '  ' + \
                                '{:5.5f}'.format(self.coords[i][0]).rjust(10)+ '  ' + \
@@ -40,12 +58,15 @@ class molecule:
     #
     ###############################################################################################
     #
-    def initialize_from_xyz(self, file):
+    def initialize_from_xyz(self, file_):
         #
-        """Procedure to initialize a molecule class object from a xyz file"""
+        """Procedure to initialize a molecule class object from a .xyz file
+           Note: if the second line is CHARGE: XXX we intialize also the molecule charge
+        """
         #
-        with open(file, 'r') as f:
+        with open(file_, 'r') as f:
             lines = f.readlines()
+        #
         self.atoms = int(lines[0].split()[0])
         coords = []
         attypes = []
@@ -63,6 +84,7 @@ class molecule:
             if len(line.split()) != 0:
                 coords.append([float(i) for i in line.split()[1:]])
                 self.atomtypes.append(line.split()[0])
+        #
         self.coords = np.asarray(coords)
         self.molecules = [0 for i in range(self.atoms)]
     #
@@ -70,12 +92,11 @@ class molecule:
     #
     def get_connectivity(self, bond_threshold = 1.5, print_info = False):
         #
-        """Procedure to get the connectivity information of each atom of the molecule
-           bond_threshold is required to define the length below which we define the atoms connected. 
-           It is expressed in Angstrom
+        """Procedure to get the connectivity information of each atom of the molecule.
+           Bond_threshold (in Angsotrom) defines the length below which we define the atoms connected. 
         """
         #
-        # sanity check
+        # Sanity check
         #
         if (self.atoms == 0):
             print('ERROR: you need to initalize the molecule before computing the connectivity of its atoms')
@@ -108,6 +129,9 @@ class molecule:
                 #
                 for index, connector in enumerate(self.connected_to[i]):
                     info_string += str(self.atomtypes[connector]) + ' ' + str(connector)
+                    #
+                    # Format
+                    #
                     if index < len(self.connected_to[i])-1:
                         info_string += ', '
                 #
@@ -115,9 +139,10 @@ class molecule:
     #
     ###############################################################################################
     #
-    def get_PE_atomtypes(self):
+    def get_atomtypes(self):
         #
-        # Procedure to get the set of atomtypes for the polarizable emebedding 
+        """Procedure to get the set of atomtypes in this moleucle. Used for the Polarizable embedding
+        """
         #
         atomtypes = []
         for i in self.atomtypes:
@@ -129,6 +154,7 @@ class molecule:
     ###############################################################################################
     #
     def join_with(self, system2, clear_overlapping_atoms = True, threshold = 0):
+        #
         # Routine to join together two molecule objects into one
         # If you use lattice parameter and tolerance (both in angstrom), then you clear the atoms closer than threshold
         

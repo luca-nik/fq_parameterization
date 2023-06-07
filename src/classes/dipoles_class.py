@@ -4,14 +4,25 @@ import sys
 #
 class dipoles:
     #
-    """Dipoles class object"""
+    """Dipoles object, having:
+       -n_dipoles  : int
+       -positions  : array of float (positions of the centers of mass of the dipoles)
+       -directions : array of float (versor of the direction of the dipole)
+       -signs      : list of str either '+-' or '-+' (sign of the dipole)
+       -name       : str
+
+       A dipole object can be initialized by the user or it can be read from a .dip file
+
+       An empty dipole object can be initialized by using the position_the_dipoles_around(mol)
+        procedure. This will generate a set of dipoles around the molecule mol.
+
+       A dipole object can be written on a .dip file or a .xyz file.
+        In the latter case, there are no information about the directions and signs
+    """
     #
     def __init__(self, n_dipoles = 0, positions = [], directions= [], signs = []):
         #
         """Initialization of the dipoles class object"""
-        """n_dipoles  = number of dipoles;
-           positions  = position of the dipole center;
-           directions = versor of the direction towards which the dipole was created""" 
         #
         self.n_dipoles  = n_dipoles
         self.positions  = np.asarray(positions.copy())
@@ -26,7 +37,9 @@ class dipoles:
     #
     def write_xyz(self, name = 'nome', directory = './', comment = ''):
         #
-        """Procedure to write the dipole object into a formatted xyz file"""
+        """Procedure to write the dipole object into a formatted xyz file
+           The dipoles center of mass positions will be written and a fake Mg atomtypes will be assigned
+           to them."""
         #
         if directory[-1] != '/':
             directory +='/'
@@ -44,7 +57,13 @@ class dipoles:
     #
     def write_dip(self, name = 'nome', directory = './'):
         #
-        """Procedure to write the .dip file needed to move the dipoles in the space"""
+        """Procedure to write the .dip file
+           This file contains information about:
+           -number of dipoles
+           -coordinates of the CM of the dipoles
+           -coordinates of the versore of each dipole
+           -sign of each dipole
+        """
         #
         # Sanity check
         #
@@ -97,12 +116,17 @@ class dipoles:
     #
     ###############################################################################################
     #
-    def position_the_dipoles_around(self, molecule, print_info = False):
+    def position_the_dipoles_around(self, molecule):
         #
-        """Procedure to generate the location of the fixed dipoles base on: """
-        """ -The connectivity of the molecule
-            -Its surface atoms
-            -Other stuff"""
+        """Procedure to initialize an empty dipoles object.
+           This procedure is used to place a set of dipoles around the target molecule
+
+           This is done by using the connectivity of each atom of the molecule.
+           Depending on the connnectivity, dipoles are generated in different positions.
+           Dipoles CM are generated at 1a distance of 1 Angstrom from the considered atom
+
+           WARNING: use the procedure molecule.get_connectivity() before using this
+        """
         #
         n_dipoles = 0
         positions = []
@@ -262,14 +286,16 @@ class dipoles:
     #
     def move_dipoles(self, which_dipoles = [], displacements = [], create_new_dipoles = True):
         #
-        """Procedure to move some dipoles of a certain displacement
+        """Procedure to move some dipoles of a certain displacement:
+           -which_dipoles      : is a list of int (the index of the dipole to move)
+           -displacements      : is a list of floats (expressed in Angstrom)
+           -create_new_dipoles : if True generates a new dipole object with the traslated dipoles.
+                                 otherwise it updates the current dipole object
 
-           which_dipoles is a list of integers identyfing the dipoles
-           displacements is a list of floats which are expressed in Angstrom
-           the displacement happen along the line and the direction identified by dipole.directions
+           The displacement happen along the line and the direction identified by dipole.directions
 
-           REMEMBER: the dipoles are generated already with a displacement of 1 Angstrom from
-                     the reference atoms. This will add to your displacement
+           WARNING: the dipoles are generated already with a displacement of 1 Angstrom from
+                    the reference atoms. This will add to your displacement
         """
         #
         # Sanity checks
@@ -335,7 +361,10 @@ class dipoles:
     #
     def change_sign(self, which_dipoles = [], signs = []):
         #
-        """Procedure to change the sign of which_dipoles according to the input signs list"""
+        """Procedure to change the sign of which_dipoles according to the input signs list
+           -which_dipoles : list of int 
+           -signs         : list of str (either'+-' or '-+')
+           """
         #
         # Sanity checks
         #
