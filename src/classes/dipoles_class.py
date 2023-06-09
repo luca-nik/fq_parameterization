@@ -20,6 +20,8 @@ class dipoles:
         In the latter case, there are no information about the directions and signs
     """
     #
+    ###############################################################################################
+    #
     def __init__(self, n_dipoles = 0, positions = [], directions= [], signs = []):
         #
         """Initialization of the dipoles class object"""
@@ -138,7 +140,7 @@ class dipoles:
             # Sanity  check
             #
             if (molecule.number_connections[surf_index] == 0 and molecule.atomtypes[surf_index] != 'Cl'):
-                print('ERROR: ' + atom + str(surf_index) + ' ' + str(molecule.atomtypes(surf_index)) + \
+                print('ERROR: atom ' + str(surf_index) + ' ' + str(molecule.atomtypes[surf_index]) + \
                       ' has zero connectivity.')
                 sys.exit()
             #

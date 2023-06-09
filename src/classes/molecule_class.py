@@ -15,6 +15,8 @@ class molecule:
        A molecule object can be initialized by the user or it can be read from a .xyz file
     """
     #
+    ###############################################################################################
+    #
     def __init__(self, atomtypes=[],coordinates=[], charge = 0):
         #
         """Initialization of the molecule class object"""
