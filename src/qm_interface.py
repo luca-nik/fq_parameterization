@@ -279,6 +279,15 @@ def create_adf_polar_inp(adf_seed_file = '', cluster = '', adf_output_file_name 
     with open(adf_seed_file, 'r') as seed:
         seed_lines = seed.readlines()
     #
+    # Get the total charge of the system (for now it works only with Cl and choline)
+    #
+    charge = 0.0
+    for molecule in cluster.molecules:
+        if (molecule.atomtypes[0] == 'Cl'):
+            charge -= 1.0
+        else:
+            charge += 1.0
+    #
     # Initialize and work on the .inp file
     #
     with open(target_directory + adf_output_file_name, 'w') as adf_file:
@@ -286,6 +295,9 @@ def create_adf_polar_inp(adf_seed_file = '', cluster = '', adf_output_file_name 
         # Write down information from seed file
         #
         for line in seed_lines:
+            #
+            # Geometry
+            #
             if('  Atoms' in line):
                 adf_file.write(line)
                 for mol_indx, molecule in enumerate(cluster.molecules):
@@ -302,6 +314,17 @@ def create_adf_polar_inp(adf_seed_file = '', cluster = '', adf_output_file_name 
                                        '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
                                        '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
                                        '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
+            #
+            # Charge
+            #
+            elif ('CHARGE' in line):
+                if (charge != 0.0):
+                    adf_file.write('  CHARGE ' + str(charge) + '\n')
+                else:
+                    pass
+            #
+            # All the rest
+            #
             else:
                 adf_file.write(line)
 #
