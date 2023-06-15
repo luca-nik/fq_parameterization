@@ -4,7 +4,7 @@ import sys
 #
 class polarizable_embedding:
     #
-    """Dipoles class object"""
+    """Polarizable embedding class object"""
     #
     def __init__(self, force_field = 'fq', atomtypes = [], chi = [], eta = [], alpha = [], \
                  Rq = [], Rmu = [], pqeq = False):

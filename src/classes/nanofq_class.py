@@ -15,10 +15,11 @@ class nanofq:
                  polarizable_model = polarizable_embedding_class.polarizable_embedding(),\
                  molecule = molecule_class.molecule(), dipoles = dipoles_class.dipoles()):
         #
-        """Initialization of the nanofq_class object"""
-        """polarizable_model = polarizable_embedding_class object
-           molecule          = molecule_class object 
-           dipoles           = dipoles_class object 
+        """Initialization of the nanofq_class object
+            nanofq_path       = str (the path where you can find the nanoFQ code)
+            polarizable_model = polarizable_embedding_class object
+            molecule          = molecule_class object 
+            dipoles           = dipoles_class object 
         """
         #
         # Sanity checks and initialization
@@ -35,6 +36,25 @@ class nanofq:
     #
     def print_info(self):
         #
+        print('***********************************************************')
+        print('nanoFQ object: ')
+        print('path          :' + self.nanofq_path)
+        print('')
+        if isinstance(self.molecule, molecule_class.molecule):
+           print('System        : molecule')
+           print('-----------------------')
+           self.molecule.print_info()
+        #
+        elif isinstance(self.molecule, cluster_class.cluster):
+           print('System        : cluster')
+           print('-----------------------')
+           for mol in self.molecule.molecules:
+               mol.print_info()
+               print('-----------------------')
+        print('')
+        print('PE           :')
+        self.polarizable_model.print_info()
+        print('***********************************************************')
         #
         #
         #
@@ -144,10 +164,17 @@ class nanofq:
             else:
                 for mol_indx, molecule in enumerate(self.molecule.molecules):
                     for i, sym in enumerate(molecule.atomtypes):
-                        nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx + 1).ljust(2) + '] '  + \
-                                      '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
-                                      '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
-                                      '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
+                        if (molecule.charge == 0):
+                            nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx + 1).ljust(2) + '] '  + \
+                                          '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
+                                          '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
+                                          '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
+                        else:
+                            nano_file.write(sym.rjust(2) + '  [IMol=' + str(mol_indx + 1).ljust(2) + \
+                                            '|charge=' + str(molecule.charge).ljust(4) + '] '  + \
+                                          '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
+                                          '{:5.5f}'.format(molecule.coords[i][1]).rjust(10)+ '  ' + \
+                                          '{:5.5f}'.format(molecule.coords[i][2]).rjust(10) + '\n')
             #
             nano_file.write('end input geometry\n')
             #
@@ -442,6 +469,8 @@ class nanofq:
         else:
             self.nanofq_path = nanofq_path
         #
+        # Polarizable model
+        #
         if (not isinstance(polarizable_model, polarizable_embedding_class.polarizable_embedding)):
             print('ERROR: nanofq_class initialization without proper polarizable model specified') 
             sys.exit()
@@ -453,6 +482,8 @@ class nanofq:
                 if (not isinstance(mol, molecule_class.molecule)):
                     print('ERROR: nanofq_class initialization without proper molecule object specified') 
                     sys.exit()
+            else:
+                self.molecule = molecule
         #
         elif (not isinstance(molecule, molecule_class.molecule) and not isinstance(molecule,cluster_class.cluster)):
             print('ERROR: nanofq_class initialization without proper molecule object specified') 

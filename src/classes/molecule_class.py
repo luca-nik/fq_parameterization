@@ -32,6 +32,17 @@ class molecule:
     #
     ###############################################################################################
     #
+    def print_info(self):
+        #
+        """Procedure to write informations of a molecule object"""
+        #
+        print('Molecule with ' + str(self.atoms) + ' atoms, and charge ' + str(self.charge))
+        for i,at in enumerate(self.atomtypes):
+            print(at.rjust(2) + '  ' + \
+                  '{:5.5f}'.format(self.coords[i][0]).rjust(10)+ '  ' + \
+                  '{:5.5f}'.format(self.coords[i][1]).rjust(10)+ '  ' + \
+                  '{:5.5f}'.format(self.coords[i][2]).rjust(10))
+        #
     def write_xyz(self, name = 'nome', directory = './'):
         #
         """Procedure to write the molecule object into a formatted .xyz file

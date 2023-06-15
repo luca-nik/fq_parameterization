@@ -39,9 +39,14 @@ class cluster:
         with open(directory+name+'.clust', 'w') as outfile:
             #
             for mol_indx, molecule in enumerate(self.molecules):
-                outfile.write('molecule: ' + str(mol_indx+1).ljust(3) + '; atoms: ' + str(molecule.atoms).ljust(3) + '\n')
+                #
                 if (molecule.charge != 0):
-                    outfile.write('  CHARGE:' + str(charge) + '\n')
+                    outfile.write('molecule: ' + str(mol_indx+1).ljust(5) + '; atoms: ' + str(molecule.atoms).ljust(5) + \
+                                  '; charge: ' + str(molecule.charge).ljust(5) + '\n')
+                else:
+                    outfile.write('molecule: ' + str(mol_indx+1).ljust(5) + '; atoms: ' + str(molecule.atoms).rjust(5) + '\n')
+                   
+                #
                 for i,sym in enumerate(molecule.atomtypes):
                     outfile.write(sym.rjust(2) + '  ' + \
                                   '{:5.5f}'.format(molecule.coords[i][0]).rjust(10)+ '  ' + \
@@ -64,18 +69,17 @@ class cluster:
         for index in indices:
             #
             molecule = molecule_class.molecule()
-            atoms = lines[index].split(';')[-1]
+            atoms = lines[index].split(';')[1]
             molecule.atoms = int(atoms.split(':')[-1])
-            skip = 0
             #
-            if ('CHARGE:' in lines[index+1]):
-                molecule.charge = float(lines[index+1].split(':')[-1])
-                skip = 1
+            if ('charge:' in lines[index]):
+                charge = lines[index].split(';')[-1]
+                molecule.charge = float(charge.split(':')[-1])
             #
             coords = []
             at_types = []
             #
-            for i,line in enumerate(lines[index+1:index+1+molecule.atoms+skip]):
+            for i,line in enumerate(lines[index+1:index+1+molecule.atoms]):
                 c = [float(i) for i in line.split()[1:]]
                 coords.append(c)
                 at_t = line.split()[0]
@@ -85,5 +89,16 @@ class cluster:
             molecule.atomtypes = at_types
             cluster_molecules.append(molecule)
         #
-        self.molecules = cluster_molecules
+        self.molecules = cluster_molecules.copy()
+            
     #
+    def get_atomtypes(self):
+        #
+        """Procedure to get a list of atomtypes of the cluster object"""
+        atomtypes = []
+        for mol in self.molecules:
+            for i in mol.atomtypes:
+                if (i not in atomtypes):
+                    atomtypes.append(i)
+        #
+        return atomtypes
