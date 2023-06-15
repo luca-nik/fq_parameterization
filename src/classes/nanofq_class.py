@@ -364,6 +364,7 @@ class nanofq:
     # Procedure to run the nanofq_code
     #
     def run(self):
+        print(self.input)
         subprocess.run([self.nanofq_path, self.input])
         if self.name == '':
             self.guess_name_from_input()

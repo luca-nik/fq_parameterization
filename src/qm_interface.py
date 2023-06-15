@@ -220,18 +220,18 @@ def et_read_EE_energy(et_out_file = ''):
 #
 #
 #
-def adf_read_polar(adf_out_file = '', which = 'isotropic'):
+def adf_read_polar(adf_out_file = '', which = 'tensor'):
     #
     """Routine to read the polarizability from adf file """
     #
     #
     #
     try:
-        if (adf_out_file.split('.')[-1] != 'log'):
-            print('ERROR: adf_read_polar witout proper .log file provided')
+        if ('.log' not in adf_out_file):
+            print('ERROR: adf_read_polar witout proper .log file provided ')
             sys.exit()
     except:
-        print('ERROR: adf_read_polar witout proper .log file provided')
+        print('ERROR: adf_read_polar witout proper .log file provided ')
         sys.exit()
     #
     with open(adf_out_file, 'r') as out:
