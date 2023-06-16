@@ -5,6 +5,8 @@ from classes import cluster_class
 from classes import polarizable_embedding_class
 from classes import nanofq_class
 from genetic_algorithm import genetic_algorithm
+import qm_interface
+import random
 import constants
 import numpy as np
 import sys
@@ -653,3 +655,102 @@ def setup_gene_space(ga_var):
    ga_var['gene_space'] = gene_space
    # 
    return ga_var
+#
+#
+#
+def set_up_train_test(train_test, dipoles_files, cluster_files, ref_files_energy, ref_files_polar):
+    #
+    """Procedure to generate the train and test sets
+       1) Get energies and polar files and values
+       2) Split in train and test
+       3) Check you are comparing .inp with correct .dip and .clust with correct .run
+    """
+    #
+    # Get energies
+    #
+    ref_energies = []
+    for file_ in ref_files_energy:
+        ref_energies.append(qm_interface.et_read_EE_energy(file_))
+    #
+    # Get polar
+    #
+    ref_polar = []
+    for file_ in ref_files_polar:
+        ref_polar.append(qm_interface.adf_read_polar(adf_out_file = file_, which = 'tensor'))
+    #
+    # Random split energies
+    #
+    random.seed(a=0, version=2)
+    samples = int(len(ref_energies)*(train_test)/100)
+    train_en_indices = random.sample(range(len(ref_energies)), samples)
+    train_en_indices.sort()
+    #
+    # Random split polar
+    #
+    random.seed(a=0, version=2)
+    samples = int(len(ref_polar)*(train_test)/100)
+    train_po_indices = random.sample(range(len(ref_polar)), samples)
+    train_po_indices.sort()
+    #
+    # Energy and dipoles split
+    #
+    train_energies = [en for i,en in enumerate(ref_energies) if i in train_en_indices]
+    test_energies  = [en for i,en in enumerate(ref_energies) if i not in train_en_indices]
+    train_dipoles = [dip for i,dip in enumerate(dipoles_files) if i in train_en_indices]
+    test_dipoles  = [dip for i,dip in enumerate(dipoles_files) if i not in train_en_indices]
+    #
+    # Polar and clusters split
+    #
+    train_polar = [po for i,po in enumerate(ref_polar) if i in train_po_indices]
+    test_polar  = [po for i,po in enumerate(ref_polar) if i not in train_po_indices]
+    train_clust = [clust for i,clust in enumerate(cluster_files) if i in train_po_indices]
+    test_clust  = [clust for i,clust in enumerate(cluster_files) if i not in train_po_indices]
+    #
+    # Set up reference and test dictionaries
+    #
+    reference = {'energies': train_energies,
+                 'polar'   : train_polar   }
+    #
+    test      = {'energies': test_energies,
+                 'polar'   : test_polar   }
+    #
+    # Energy files
+    #
+    en_files_train = [en for i,en in enumerate(ref_files_energy) if i in train_en_indices] 
+    en_files_test = [en for i,en in enumerate(ref_files_energy) if i not in train_en_indices] 
+    #
+    # Polar Files
+    #
+    pol_files_train = [po for i,po in enumerate(ref_files_polar) if i in train_po_indices] 
+    pol_files_test = [po for i,po in enumerate(ref_files_polar) if i not in train_po_indices] 
+    #
+    # Check that order and names of all files match!
+    #
+    check_dipoles(train_dipoles,en_files_train)
+    check_dipoles(test_dipoles,en_files_test)
+    check_cluster(train_clust,pol_files_train)
+    check_cluster(test_clust,pol_files_test)
+
+    return reference, test, train_dipoles, test_dipoles, train_clust, test_clust
+#
+#
+#
+def check_dipoles(dip,et):
+    #
+    """Procedure to check the ordrieng of the files.
+       Needed for proper comparison with the reference"""
+    dips = [i.split('/')[-1].split('.dip')[0] for i in dip]
+    ens = [i.split('/')[-1].split('.out')[0] for i in et]
+    if (dips != ens):
+        print('ERROR: dipoles files and eT input files are different')
+        sys.exit()
+        
+def check_cluster(clust,adf):
+    #
+    """Procedure to check the ordrieng of the files.
+       Needed for proper comparison with the reference"""
+    cl = [i.split('/')[-1].split('.clust')[0] for i in clust]
+    adfs = [i.split('/')[-1].split('.log')[0] for i in adf]
+    if (cl != adfs):
+        print('ERROR: cluster files and adf input files are different')
+        sys.exit()
