@@ -137,7 +137,12 @@ def best_solutions_management(ga_instance,best_solutions,sol_per_pop):
             ga_core.run_final_PE(ga_instance,dir_ = wdir + 'optimal_p' + str(indx), embedding = polarizable_embeddings[i], pop_index = indx)
         else:
             pop_indx_dir = wdir+ 'g' + str(ga_instance.generations_completed)+'_p' + str(indx)
-            subprocess.run(['mv', pop_indx_dir, wdir + 'optimal_p' + str(indx)])
+            if (os.path.exists(pop_indx_dir)):
+                subprocess.run(['mv', pop_indx_dir, wdir + 'optimal_p' + str(indx)])
+            else:
+                ga_core.run_final_PE(ga_instance,dir_ = wdir + 'optimal_p' + str(indx), \
+                    embedding = polarizable_embeddings[i], pop_index = indx)
+                
     #
     # Delete all the other folders
     #

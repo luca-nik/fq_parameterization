@@ -135,7 +135,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Cycle over the dipoles files to get the EE interaction energy
     #
-    for dip_file in dip_files[0:2]:
+    for dip_file in dip_files:
         #
         # Initialize dipoles and get the dipole you need to place
         #
@@ -174,7 +174,7 @@ def PE_run_and_fit(ga_instance,solution,solution_idx):
     #
     # Cycle over the clusters to get the polarizability
     #
-    for clust_file in clust_files[0:2]:
+    for clust_file in clust_files:
         #
         #
         #
@@ -279,7 +279,7 @@ def run_final_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
     #
     # Cycle over the dipoles files to get the EE interaction energy
     #
-    for dip_file in dip_files[0:2]:
+    for dip_file in dip_files:
         #
         # Initialize dipoles and get the dipole you need to place
         #
@@ -315,7 +315,7 @@ def run_final_PE(ga_instance, dir_ = './', embedding = [], pop_index = 0):
     #
     # Cycle over the clusters to get the polarizability
     #
-    for clust_file in clust_files[0:2]:
+    for clust_file in clust_files:
         #
         #
         #
@@ -577,7 +577,7 @@ def read_ga_variables(input_file):
                            sys.exit()
 
     #
-    # TODO: Questo dara' problemi col cloro
+    # You need a zero of the electronegativity
     #
     if ga_var['atom_constrained'] == '':
         print('ERROR: '+ input_file + ' provided without a constraint on the chi')
