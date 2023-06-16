@@ -31,7 +31,7 @@ def run_genetic_algorithm(nanofq,reference):
                            num_genes = ga_core.ga_var['num_genes'],                       \
                            mutation_num_genes = ga_core.ga_var["mutation_num_genes"],        \
                            random_mutation_min_val = ga_core.ga_var["mutation_min_val"],          \
-                           random_mutation_max_val = ga_core.ga_var["mutation_min_val"],          \
+                           random_mutation_max_val = ga_core.ga_var["mutation_max_val"],          \
                            gene_space = ga_core.ga_var['gene_space'],                 \
                            save_solutions=True,                     \
                            allow_duplicate_genes = False,           \
