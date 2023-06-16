@@ -38,21 +38,22 @@ class polarizable_embedding:
         print(' force_field : ' + self.force_field)
         infostring = ''
         for ii,i in enumerate(self.atomtypes):
-            infostring += "'" + i + "'"
+            string_ = "'" + i + "'".ljust(9)
+            infostring +=  string_
             if ii < len(self.atomtypes) -1:
                 infostring += ' , '
         print(' atomtypes   : ' + infostring)
         #
         infostring = ''
         for ii,i in enumerate(self.chi):
-            infostring += str(i)
+            infostring += '{:.7f}'.format(i).ljust(12)
             if ii < len(self.chi) -1:
                 infostring += ' , '
         print(' chi         : ' + infostring)
         #
         infostring = ''
         for ii,i in enumerate(self.eta):
-            infostring += str(i)
+            infostring += '{:.7f}'.format(i).ljust(12)
             if ii < len(self.eta) -1:
                 infostring += ' , '
         print(' eta         : ' + infostring)
@@ -60,7 +61,7 @@ class polarizable_embedding:
         if (self.force_field == 'fqfmu' or self.force_field == 'fqfmu_pqeq'):
             infostring = ''
             for ii,i in enumerate(self.alpha):
-                infostring += str(i)
+                infostring += '{:.7f}'.format(i).ljust(12)
                 if ii < len(self.alpha) -1:
                     infostring += ' , '
             print(' alpha       : ' + infostring)
@@ -68,7 +69,7 @@ class polarizable_embedding:
         if (self.force_field == 'fq_pqeq' or self.force_field == 'fqfmu_pqeq'):
             infostring = ''
             for ii,i in enumerate(self.Rq):
-                infostring += str(i)
+                infostring += '{:.7f}'.format(i).ljust(12)
                 if ii < len(self.Rq) -1:
                     infostring += ' , '
             print(' Rq          : ' + infostring)
@@ -76,7 +77,7 @@ class polarizable_embedding:
         if (self.force_field == 'fqfmu_pqeq'):
             infostring = ''
             for ii,i in enumerate(self.Rmu):
-                infostring += str(i)
+                infostring += '{:.7f}'.format(i).ljust(12)
                 if ii < len(self.Rmu) -1:
                     infostring += ' , '
             print(' Rmu         : ' + infostring)
