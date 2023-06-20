@@ -543,8 +543,8 @@ def read_ga_variables(input_file):
                 # chi
                 #
                 chis    = parameters[1]
-                if (len(chis.split('-')) > 1):
-                    ga_var['chis_range'].append([float(i) for i in chis.split('-')[0:2]])
+                if (len(chis.split('/')) > 1):
+                    ga_var['chis_range'].append([float(i) for i in chis.split('/')[0:2]])
                 else:
                     if (ga_var['atom_constrained'] != ''):
                         print('ERROR: ' + input_file + ' called with more than one constraint.')
@@ -557,8 +557,8 @@ def read_ga_variables(input_file):
                 # etas
                 #
                 etas    = parameters[2]
-                if (len(etas.split('-')) > 1):
-                    ga_var['etas_range'].append([float(i) for i in etas.split('-')[0:2]])
+                if (len(etas.split('/')) > 1):
+                    ga_var['etas_range'].append([float(i) for i in etas.split('/')[0:2]])
                 else:
                     print('ERROR: ' + input_file + ' provided with wrong eta range for ' + at_type)
                     sys.exit()
@@ -572,8 +572,8 @@ def read_ga_variables(input_file):
                        sys.exit()
                    else:
                        alphas = parameters[3]
-                       if (len(alphas.split('-')) > 1):
-                           ga_var['alphas_range'].append([float(i) for i in alphas.split('-')[0:2]])
+                       if (len(alphas.split('/')) > 1):
+                           ga_var['alphas_range'].append([float(i) for i in alphas.split('/')[0:2]])
                        else:
                            print('ERROR: ' + input_file + ' provided with wrong alpha range for ' + at_type)
                            sys.exit()
