@@ -38,7 +38,7 @@ class nanofq:
         #
         print('***********************************************************')
         print('nanoFQ object: ')
-        print('path          :' + self.nanofq_path)
+        print('path          : ' + self.nanofq_path)
         print('')
         if isinstance(self.molecule, molecule_class.molecule):
            print('System        : molecule')
@@ -51,6 +51,61 @@ class nanofq:
            for mol in self.molecule.molecules:
                mol.print_info()
                print('-----------------------')
+        print('')
+        if (self.dipoles.n_dipoles != 0):
+            if (type(self.which_dipoles) == list and len(self.which_dipoles) != 0):
+                print('EE dipoles      : ' + str(len(self.which_dipoles)))
+                print('-----------------------')
+                print('Dipole | ' + 'Pos X'.rjust(10) + ' ' +'Pos Y'.rjust(10) + ' ' + 'Pos Z'.rjust(10) + \
+                               ' | ' + 'Dir X'.rjust(10) + ' ' +'Dir Y'.rjust(10) + ' ' + 'Dir Z'.rjust(10)      + \
+                               ' | ' + 'Sign'.rjust(6))
+                for i in self.which_dipoles:
+                    print(str(i).ljust(6) + ' | ' + \
+                             '{:5.5f}'.format(self.dipoles.positions[i][0]).rjust(10)+ ' '    + \
+                             '{:5.5f}'.format(self.dipoles.positions[i][1]).rjust(10)+ ' '    + \
+                             '{:5.5f}'.format(self.dipoles.positions[i][2]).rjust(10) + ' | ' + \
+                             '{:5.5f}'.format(self.dipoles.directions[i][0]).rjust(10)+ ' '   + \
+                             '{:5.5f}'.format(self.dipoles.directions[i][1]).rjust(10)+ ' '   + \
+                             '{:5.5f}'.format(self.dipoles.directions[i][2]).rjust(10)+ ' | ' + \
+                             self.dipoles.signs[i].rjust(6)
+                             )
+            elif (type(self.which_dipoles) == int):
+                print('EE dipoles      : 1')
+                print('-----------------------')
+                print('Dipole | ' + 'Pos X'.rjust(10) + ' ' +'Pos Y'.rjust(10) + ' ' + 'Pos Z'.rjust(10) + \
+                               ' | ' + 'Dir X'.rjust(10) + ' ' +'Dir Y'.rjust(10) + ' ' + 'Dir Z'.rjust(10)      + \
+                               ' | ' + 'Sign'.rjust(6))
+                #
+                i = self.which_dipoles
+                print(str(i).ljust(6) + ' | ' + \
+                         '{:5.5f}'.format(self.dipoles.positions[i][0]).rjust(10)+ ' '    + \
+                         '{:5.5f}'.format(self.dipoles.positions[i][1]).rjust(10)+ ' '    + \
+                         '{:5.5f}'.format(self.dipoles.positions[i][2]).rjust(10) + ' | ' + \
+                         '{:5.5f}'.format(self.dipoles.directions[i][0]).rjust(10)+ ' '   + \
+                         '{:5.5f}'.format(self.dipoles.directions[i][1]).rjust(10)+ ' '   + \
+                         '{:5.5f}'.format(self.dipoles.directions[i][2]).rjust(10)+ ' | ' + \
+                         self.dipoles.signs[i].rjust(6)
+                         )
+            #
+            #
+            #
+            else:
+                print('EE dipoles      : ' + str(self.dipoles.n_dipoles))
+                print('-----------------------')
+                print('Dipole | ' + 'Pos X'.rjust(10) + ' ' +'Pos Y'.rjust(10) + ' ' + 'Pos Z'.rjust(10) + \
+                               ' | ' + 'Dir X'.rjust(10) + ' ' +'Dir Y'.rjust(10) + ' ' + 'Dir Z'.rjust(10)      + \
+                               ' | ' + 'Sign'.rjust(6))
+                for i in range(self.dipoles.n_dipoles):
+                    print(str(i).ljust(6) + ' | ' + \
+                             '{:5.5f}'.format(self.dipoles.positions[i][0]).rjust(10)+ ' '    + \
+                             '{:5.5f}'.format(self.dipoles.positions[i][1]).rjust(10)+ ' '    + \
+                             '{:5.5f}'.format(self.dipoles.positions[i][2]).rjust(10) + ' | ' + \
+                             '{:5.5f}'.format(self.dipoles.directions[i][0]).rjust(10)+ ' '   + \
+                             '{:5.5f}'.format(self.dipoles.directions[i][1]).rjust(10)+ ' '   + \
+                             '{:5.5f}'.format(self.dipoles.directions[i][2]).rjust(10)+ ' | ' + \
+                             self.dipoles.signs[i].rjust(6)
+                             )
+        
         print('')
         print('PE           :')
         self.polarizable_model.print_info()
