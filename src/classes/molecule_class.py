@@ -227,6 +227,22 @@ class molecule:
                 if dist < mindist or mindist < 0 :
                     mindist = dist
         return mindist
+    #
+    def get_cm(self):
+        """"Get center of mass of system"""
+        #weights = constants.get_atomic_weights()
+        cm = [0,0,0]
+        TotMass = 0
+        for indx, coords in enumerate(self.coords):
+            #weight = weights[self.atomtypes[indx]]
+            weight = 1.0
+            cm[0] += coords[0]*weight
+            cm[1] += coords[1]*weight
+            cm[2] += coords[2]*weight
+            TotMass += weight
+        #cm = np.sum(self.coords, axis = 0)
+        cm = np.array(cm)/TotMass
+        return cm
 
 #
 # This might be useful in the future

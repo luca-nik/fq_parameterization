@@ -102,3 +102,112 @@ class cluster:
                     atomtypes.append(i)
         #
         return atomtypes
+    #
+    def get_rdf(self, molecule_1 = '', molecule_2 = '', r_max = 30, bins = 1000):
+        #
+        # r max in angstorm
+        #
+        if isinstance(molecule_1, int) and isinstance(molecule_2, str):
+            if molecule_2 == '':
+                print('RDF but molecule_2 not set')
+                sys.exit()
+            else:
+                dists = []
+                target_index = molecule_1 - 1 
+                target = self.molecules[target_index]
+                #
+                coordinates = target.get_cm()
+                coordinates = np.array(coordinates)
+                
+                for index, molecule in enumerate(self.molecules):
+                    if index == target_index:
+                        pass
+                    else: #If a system has more atoms of molecule_2 atomtypes, then you take only the one with smaller distance
+                        at_indices = [at_index for at_index, atom in enumerate(molecule.atomtypes) if atom == molecule_2]
+                        mindist = -1
+                        for atom_index in at_indices:
+                            coordinates2 = np.array(molecule.coords[atom_index])
+                            #
+                            dist = np.linalg.norm(coordinates-coordinates2)
+                            if atom_index == at_indices[0]:
+                                mindist = dist
+                            else:
+                                if mindist > dist:
+                                    mindist = dist
+                        #
+                        if mindist <= r_max:
+                            dists.append(mindist)
+
+                #for index, molecule in enumerate(self.molecules):
+                #    if index == target_index:
+                #        pass
+                #    else: #only first occurrence
+                #        atom_index = molecule.atomtypes.index(molecule_2)
+                #        coordinates2 = np.array(molecule.coords[atom_index])
+                #        #
+                #        for coordinates in target.coords:
+                #            #
+                #            dist = np.linalg.norm(np.array(coordinates)-coordinates2)
+                #            if dist <= r_max:
+                #                dists.append(dist)
+        #
+        elif isinstance(molecule_1, str) and isinstance(molecule_2, str):
+            if molecule_2 == '' or molecule_1 == '':
+                print('RDF but molecule_2 or molecule_1 not set')
+                sys.exit()
+            else:
+                dists = []
+                #
+                for index, molecule2 in enumerate(self.molecules):
+                    atom_index2 = molecule2.atomtypes.index(molecule_2)
+                    coordinates2 = np.array(molecule2.coords[atom_index2])
+                    #
+                    for iindex, molecule1 in enumerate(self.molecules):
+                        if iindex == index:
+                            pass
+                        else:
+                            atom_index1 = molecule1.atomtypes.index(molecule_1)
+                            coordinates1 = np.array(molecule1.coords[atom_index1])
+
+                            dist = np.linalg.norm(coordinates1-coordinates2)
+                            dists.append(dist)
+
+
+        else:
+            raise ValueError("Input must be an integer or a string.")
+        #
+        dists = np.array(dists)
+
+        # Create bin edges
+        bin_edges = np.linspace(0, r_max, bins + 1)
+
+        # Populate bins
+        hist, edges = np.histogram(dists, bins=bin_edges, density = False)
+        #
+        # Normalize RDF
+        #
+        system_volume = (4/3)*np.pi*np.amax(dists)**3
+        #
+        N_particles = (len(dists))#/target.atoms) #valido solo se prendo un atomo che c'e' solo una volta nelle molecole
+        #
+        ##Number density
+        rho = N_particles / system_volume
+        #print(rho)
+
+        ## Calculate the volume of each bin
+        r_inner = edges[:-1]
+        r_outer = edges[1:]
+        #
+        shell_volume = (4/3) * np.pi * (r_outer**3 - r_inner**3)
+        #
+        ## Normalize the RDF
+        bin_midpoints = (edges[1:] + edges[:-1]) / 2
+        rdf = hist / (4*np.pi*rho*edges[1:]**2*r_max / bins)#*target.atoms)
+        test = rdf*bin_midpoints**2
+        rdf_integral = np.sum(test*r_max/bins)*4*np.pi*rho#np.rect(test, bin_midpoints)*4*np.pi*rho
+
+        #print("Integral of the RDF:", rdf_integral)
+        #sys.exit()
+        #
+        return rdf, bin_midpoints
+

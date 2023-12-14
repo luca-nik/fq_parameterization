@@ -35,10 +35,22 @@ def FQ_parameters(solvent = 'wat'):
         atomtypes = ['C', 'O', 'H']
         chi = [7.6251e-01, 9.5000e-01, 5.8328e-01]
         eta = [1.7382e-01, 9.5000e-01, 5.2209e-01]
-    elif solvent == 'wat':
+    elif solvent == 'wat-ambrosetti' or solvent == 'wat':
         atomtypes = ['O', 'H']
         chi = [0.15780000, 0.01249200]
         eta = [0.54386000, 0.44020000]
+    elif solvent == 'wat-rick':
+        atomtypes = ['O', 'H']
+        chi = [0.11685879436, 0.00000000001]
+        eta = [0.58485173233, 0.62501048888]
+    elif solvent == 'wat-carnimeo':
+        atomtypes = ['O', 'H']
+        chi = [0.189194, 0.012767]
+        eta = [0.623700, 0.637512]
+    elif solvent == 'wat-giovannini':
+        atomtypes = ['O', 'H']
+        chi = [0.189194, 0.012767]
+        eta = [0.523700, 0.537512]
     else:
         print('Error: I do not have FQ parameters for ' + str(solvent))
         sys.exit()
