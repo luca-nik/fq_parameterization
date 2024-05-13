@@ -7,7 +7,7 @@ This python project is created for the Lab. sessions of the course Advanced Topi
 
 ## Theoretical Introduction
 The [Fluctuating Charges](https://pubs.aip.org/aip/jcp/article/101/7/6141/166365/Dynamical-fluctuating-charge-force-fields) (`FQ`) model is a molecular dynamics model in which solvent atoms are endowed with a polarizable partial charge. 
-The value of such partial charges depend upon atomic **Electronegativity (χ)**, **Chemical Hardness (η)**, and their inteaction with the surroinding environment (other partial charges, external potentials, ...).
+The value of such partial charges depend upon atomic **Electronegativity (χ)**, **Chemical Hardness (η)**, and their inteaction with the surrounding environment (other partial charges, external potentials, ...).
 
 The FQ model is widely employed in [Quantum Mechanics / Molecular Mechanics](https://pubs.aip.org/aip/jcp/article/157/21/214101/2842082/Assessing-the-quality-of-QM-MM-approaches-to) (`QM/MM`) models for the simulations of the spectoscopic properties of molecular systems embedded in an external environment.
 Usually, the target analyte is treated at the QM level of theory employing e.g. [Density Functional Theory](https://en.wikipedia.org/wiki/Density_functional_theory), whereas the solvent environment is treated by means of the FQ model. 
