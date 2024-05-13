@@ -1,4 +1,5 @@
-> **_NOTE:_**  This project is on progress, additional and more detailed documentation will be soon added.
+![Status](https://img.shields.io/badge/Status-Work_in_Progress-yellow)
+> **_NOTE:_**  This project is in progress, additional and more detailed documentation will be soon added.
 
 
 ## FQ parameterization
