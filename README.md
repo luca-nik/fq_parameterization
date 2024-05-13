@@ -3,10 +3,10 @@
 
 
 ## FQ parameterization
-This python project is created for the Lab. sessions of the course Advanced Topics in Quantum Chemistry (Prof. T. Giovannini, A.A. 2023/2024) to help you out in the parameterziation of atomic **Electronegativity (χ)** and **Chemical Hardness (η)** for the Fluctuating Charges force field for QM/MM calculations.
+This python project is created for the Lab. sessions of the course Advanced Topics in Quantum Chemistry (Prof. T. Giovannini, A.A. 2023/2024) to help you out in the parameterziation of atomic Electronegativity (χ) and Chemical Hardness (η) for the Fluctuating Charges force field for QM/MM calculations.
 
 ## Theoretical Introduction
-The [Fluctuating Charges](https://pubs.aip.org/aip/jcp/article/101/7/6141/166365/Dynamical-fluctuating-charge-force-fields) model is a molecular dynamics model in which solvent atoms are endowed with a polarizable partial charge. 
+The [Fluctuating Charges](https://pubs.aip.org/aip/jcp/article/101/7/6141/166365/Dynamical-fluctuating-charge-force-fields) (`FQ`) model is a molecular dynamics model in which solvent atoms are endowed with a polarizable partial charge. 
 The value of such partial charges depend upon atomic **Electronegativity (χ)**, **Chemical Hardness (η)**, and their inteaction with the surroinding environment (other partial charges, external potentials, ...).
 
 The FQ model is widely employed in [Quantum Mechanics / Molecular Mechanics](https://pubs.aip.org/aip/jcp/article/157/21/214101/2842082/Assessing-the-quality-of-QM-MM-approaches-to) (`QM/MM`) models for the simulations of the spectoscopic properties of molecular systems embedded in an external environment.
