@@ -24,10 +24,10 @@ Then we deploy a genetic algorithm approach to find the correct (χ,η) values m
 
 ## Documentation
 List of the presentations of the Lab. Sessions of the previous year:
-1. **Session 1** 
-2. **Session 2**
-3. **Session 3**
-4. **Session 4**
+1. [**Session 1**](.docs/Session_1) 
+3. **Session 2**
+4. **Session 3**
+5. **Session 4**
 
 ## Authors and acknowledgment
 Luca Nicoli
