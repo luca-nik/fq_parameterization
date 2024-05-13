@@ -24,17 +24,12 @@ Such calculations are generated within the code by interfacing with [eT program]
 Then we deploy a genetic algorithm approach to find the correct (χ,η) values matching the reference QM calculations.
 
 ## Documentation
-List of the presentations of the Lab. Sessions of the previous year:
-1. [**Session 1**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_1.pdf)
-3. [**Session 2**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_2.pdf)
-4. [**Session 3**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_3.pdf)
-5. [**Session 4**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_4.pdf)
+List of the presentations of the Lab. 
+Sessions of the previous year:
+1. [**Session 1**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_1.pdf): Definition of the QM/FQ equations, introduction to genetic algorithms and FQ parameterization, positioning of fixed charges around target molecule;
+3. [**Session 2**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_2.pdf): Definition of electrostatic embeddings (EE), QM/EE and FQ/EE working equations, setup and calculation on `HPC` of reference QM/EE calculations;
+4. [**Session 3**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_3.pdf): Genetic Algorithm (GA) in the specific case of the optimization of FQ parameters. Tests using GA to compute FQ/EE calculations;
+6. [**Session 4**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_4.pdf): Finalization of the GA for the optimization of FQ parameters. Parameterization of FQ for liquid water, parameterization of FQ for Deep Eutectic Solvents.
 
-## Authors and acknowledgment
+## Author
 Luca Nicoli
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
