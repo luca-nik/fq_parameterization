@@ -25,9 +25,9 @@ Then we deploy a genetic algorithm approach to find the correct (χ,η) values m
 ## Documentation
 List of the presentations of the Lab. Sessions of the previous year:
 1. [**Session 1**](.docs/Session_1) 
-3. **Session 2**
-4. **Session 3**
-5. **Session 4**
+3. [**Session 2**](.docs/Session_2) 
+4. [**Session 3**](.docs/Session_3) 
+5. [**Session 4**](.docs/Session_4) 
 
 ## Authors and acknowledgment
 Luca Nicoli
