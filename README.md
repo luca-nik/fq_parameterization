@@ -28,8 +28,7 @@ List of the presentations of the Lab. Sessions of the previous year:
 2. **Session 2**
 3. **Session 3**
 4. **Session 4**
-5. **Session 5**
-6. 
+
 ## Authors and acknowledgment
 Luca Nicoli
 
