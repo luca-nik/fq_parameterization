@@ -24,10 +24,10 @@ Then we deploy a genetic algorithm approach to find the correct (χ,η) values m
 
 ## Documentation
 List of the presentations of the Lab. Sessions of the previous year:
-1. [**Session 1**](.docs/Session_1) 
-3. [**Session 2**](.docs/Session_2) 
-4. [**Session 3**](.docs/Session_3) 
-5. [**Session 4**](.docs/Session_4) 
+1. [**Session 1**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_1.pdf)
+3. [**Session 2**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_2.pdf)
+4. [**Session 3**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_3.pdf)
+5. [**Session 4**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_4.pdf)
 
 ## Authors and acknowledgment
 Luca Nicoli
