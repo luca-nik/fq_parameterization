@@ -3,7 +3,7 @@
 
 
 ## FQ parameterization
-This python project is created for the Lab. sessions of the course Advanced Topics in Quantum Chemistry (Prof. T. Giovannini, A.A. 2023/2024) to help you out in the parameterziation of atomic Electronegativity (χ) and Chemical Hardness (η) for the Fluctuating Charges force field for QM/MM calculations.
+This python project is created for the Lab. sessions of the course Advanced Topics in Quantum Chemistry to help you out in the parameterziation of atomic Electronegativity (χ) and Chemical Hardness (η) for the Fluctuating Charges force field for QM/MM calculations.
 
 ## Theoretical Introduction
 The [Fluctuating Charges](https://pubs.aip.org/aip/jcp/article/101/7/6141/166365/Dynamical-fluctuating-charge-force-fields) (`FQ`) model is a molecular dynamics model in which solvent atoms are endowed with a polarizable partial charge. 
@@ -26,10 +26,10 @@ Then we deploy a genetic algorithm approach to find the correct (χ,η) values m
 ## Documentation
 List of the presentations of the Lab. 
 Sessions of the previous year:
-1. [**Session 1**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_1.pdf): Definition of the QM/FQ equations, introduction to genetic algorithms and FQ parameterization, positioning of fixed charges around target molecule;
-3. [**Session 2**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_2.pdf): Definition of electrostatic embeddings (EE), QM/EE and FQ/EE working equations, setup and calculation on `HPC` of reference QM/EE calculations;
-4. [**Session 3**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_3.pdf): Genetic Algorithm (GA) in the specific case of the optimization of FQ parameters. Tests using GA to compute FQ/EE calculations;
-6. [**Session 4**](https://github.com/nicoli-luca/fq_parameterization/blob/main/docs/Session_4.pdf): Finalization of the GA for the optimization of FQ parameters. Parameterization of FQ for liquid water, parameterization of FQ for Deep Eutectic Solvents.
+1. [**Session 1**](https://github.com/luca-nik/fq_parameterization/blob/main/docs/Session_1.pdf): Definition of the QM/FQ equations, introduction to genetic algorithms and FQ parameterization, positioning of fixed charges around target molecule;
+3. [**Session 2**](https://github.com/luca-nik/fq_parameterization/blob/main/docs/Session_2.pdf): Definition of electrostatic embeddings (EE), QM/EE and FQ/EE working equations, setup and calculation on `HPC` of reference QM/EE calculations;
+4. [**Session 3**](https://github.com/luca-nik/fq_parameterization/blob/main/docs/Session_3.pdf): Genetic Algorithm (GA) in the specific case of the optimization of FQ parameters. Tests using GA to compute FQ/EE calculations;
+6. [**Session 4**](https://github.com/luca-nik/fq_parameterization/blob/main/docs/Session_4.pdf): Finalization of the GA for the optimization of FQ parameters. Parameterization of FQ for liquid water, parameterization of FQ for Deep Eutectic Solvents.
 
 ## Author
 Luca Nicoli
